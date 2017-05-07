@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>32e04200-efa7-47ec-8907-fd2385d08921</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>virtual_xbox_control.py</StartupFile>
+    <StartupFile>project_cars_using_tensorflow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

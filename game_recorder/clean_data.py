@@ -7,7 +7,7 @@ import matplotlib.image as mpimg
 
 #data/Project_Cars_2017-04-30_10-39-05
 
-path = 'data/Project_Cars_2017-05-06_13-17-43/'
+path = 'data/Project_Cars_2017-05-07_16-16-25/'
 
 def put_training_data_into_one_file():
     print('put_training_data_into_one_file - Starting')
@@ -54,9 +54,9 @@ def convert_training_data_into_binary():
     #HEIGHT = 72
     for data in tqdm(training_data):
         features = data[0].flatten()# needs reshaping when use conv2d
-        label = data[1]
+        label = data[1]#.astype('float32')
 
-        #print(features.shape)
+        #print(label.shape)
 
         example = tf.train.Example(
             # Example contains a Features proto object
@@ -66,7 +66,7 @@ def convert_training_data_into_binary():
                 # A Feature contains one of either a int64_list,
                 # float_list, or bytes_list
                 'label': tf.train.Feature(
-                    float_list=tf.train.FloatList(value=label)),#Int64List
+                    float_list=tf.train.FloatList(value=[label[0], label[1], label[2], label[3]])),#Int64List
                 'image': tf.train.Feature(
                     bytes_list=tf.train.BytesList(value=[features.tobytes()])),#smaller training file size
                     #int64_list=tf.train.Int64List(value=features.astype('int64'))),
@@ -90,11 +90,13 @@ def test_reading_binary_data():
         #image = example.features.feature['image'].int64_list.value
         label = example.features.feature['label'].float_list.value
         
-        #working with BytesList, but getting negative values
+        
         test = np.fromstring(image, dtype=np.uint8)
         test = np.reshape(test, (72, 128))
         print(test.shape)
-        print('label', label)
+
+
+        print('label', np.array(label).shape)
         ##working with Int64List
         #test = np.reshape(image, (72, 128))
         #print(test.shape)
