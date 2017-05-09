@@ -66,7 +66,7 @@ def convert_training_data_into_binary():
                 # A Feature contains one of either a int64_list,
                 # float_list, or bytes_list
                 'label': tf.train.Feature(
-                    float_list=tf.train.FloatList(value=[label[0], label[1], label[2], label[3]])),#Int64List
+                    float_list=tf.train.FloatList(value=label)),#Int64List
                 'image': tf.train.Feature(
                     bytes_list=tf.train.BytesList(value=[features.tobytes()])),#smaller training file size
                     #int64_list=tf.train.Int64List(value=features.astype('int64'))),

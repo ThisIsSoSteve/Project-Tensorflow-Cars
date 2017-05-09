@@ -1,5 +1,5 @@
 import pyxinput
-
+import numpy as np
 #pyxinput.test_virtual()
 MyVirtual = pyxinput.vController()
 
@@ -8,6 +8,20 @@ control_brakes = 'TriggerL'
 control_steering = 'AxisLx'
 
 def control_car(throttle, brakes, steering_left, steering_right):
+
+    throttle = np.absolute(throttle)
+    brakes = np.absolute(brakes)
+    steering_left = np.absolute(steering_left)
+    steering_right = np.absolute(steering_right)
+
+    if throttle > 1:
+        throttle = 1
+    if brakes > 1:
+        brakes = 1
+    if steering_left > 1:
+        steering_left = 1
+    if steering_right > 1:
+        steering_right = 1
 
     if steering_left > steering_right:
         MyVirtual.set_value(control_steering, -steering_left)

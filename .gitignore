@@ -5,7 +5,7 @@
 *.npy
 *.tfrecords
 /Project-Tensorflow-Cars/game_recorder/data
-
+/Project-Tensorflow-Cars/project_cars_using_tensorflow/model
 
 # User-specific files
 *.suo
