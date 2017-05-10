@@ -4,8 +4,8 @@
 #python
 *.npy
 *.tfrecords
-/Project-Tensorflow-Cars/game_recorder/data
-/Project-Tensorflow-Cars/project_cars_using_tensorflow/model
+/game_recorder/data
+/project_cars_using_tensorflow/model
 
 # User-specific files
 *.suo
@@ -256,3 +256,4 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+

@@ -1,9 +1,11 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #hide CUDA logging
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #hide CUDA logging
 
+#os.environ['CUDA_VISIBLE_DEVICES'] =""
 import tensorflow as tf
 import numpy as np
 import time
+
 
 model_save_path = 'E:/repos/Project-Tensorflow-Cars/project_cars_using_tensorflow/model/project_tensorflow_car_model.ckpt'
 
@@ -43,7 +45,7 @@ def model(X, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidde
     l3 = tf.nn.dropout(l3, p_keep_conv)
 
     #fully connected
-    l4 = tf.reshape(l3, [-1, 128 * 16 * 9])
+    l4 = tf.reshape(l3, [-1, 128 * 16 * 9])#16384 
     l4 =tf.nn.relu(tf.matmul(l4, w4) + b4)
     l4 = tf.nn.dropout(l4, p_keep_hidden)
 
@@ -94,13 +96,11 @@ def get_training_data(filename_queue):
 
     images, labels = tf.train.shuffle_batch([image, label],
                                                  batch_size=128,
-                                                 capacity=(1000 + 3) * 128,
+                                                 capacity=(10000 + 3) * 128,
                                                  num_threads=4,
-                                                 min_after_dequeue=1000)
+                                                 min_after_dequeue=10000)
 
     return images, labels
-
-
 
 #print(image.shape)
 def train_model():
@@ -115,8 +115,9 @@ def train_model():
     optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(cost)
 
     saver = tf.train.Saver()
-
-    with tf.Session() as sess:
+    config = tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.7
+    with tf.Session(config=config) as sess:
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
 
@@ -124,18 +125,18 @@ def train_model():
         threads = tf.train.start_queue_runners(coord=coord)
 
     
-        for i in range(10):
+        for i in range(100):
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.3, p_keep_hidden: 0.2})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.6, p_keep_hidden: 0.3})
             print (loss_val)
     
         # Wait for threads to finish.
         coord.request_stop()
         coord.join(threads)
         saver.save(sess, model_save_path)
-train_model()
+#train_model()
 
 def countdown(count):
     while True:
@@ -149,7 +150,10 @@ def use_model():
     import grabber
     import ctypes
     import cv2
-    import virtual_xbox_control as vc
+    #import virtual_xbox_control as vc
+    
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
 
     print('Get Project Cars in focus!')
     countdown(3)
@@ -158,29 +162,33 @@ def use_model():
 
     prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
     saver = tf.train.Saver()
-    with tf.Session() as sess:
-       sess.run(tf.local_variables_initializer())
-       sess.run(tf.global_variables_initializer())
-       saver.restore(sess, model_save_path)
-       pic = None
 
-       while True:
-           #grab the screen 
-           #vc.control_car(0, 0, 0, 0)
-           pic = grabberObject.grab(pic)
-           gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-           #pic = None
-           gray_image = cv2.resize(gray_image, (128,72))
+    config = tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.7
 
-           gray_image = np.reshape(gray_image,(1,72,128,1))
+    with tf.Session(config=config) as sess:
+        sess.run(tf.local_variables_initializer())
+        sess.run(tf.global_variables_initializer())
+        saver.restore(sess, model_save_path)
+        pic = None
 
-           predictedAction = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
-           predictedAction = predictedAction[0]
-           vc.control_car(predictedAction[0], predictedAction[1], predictedAction[2], predictedAction[3])
-           print(predictedAction)
+        while True:
+            #grab the screen 
+            pic = grabberObject.grab(pic)
+            gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
 
-           #gray_image = None
-           #pic = None
-           time.sleep(0.1)
+            gray_image = cv2.resize(gray_image, (128,72))
 
-#use_model()
+            gray_image = np.reshape(gray_image,(1,72,128,1))
+
+            predictedAction = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
+            predictedAction = predictedAction[0]
+            vc.control_car(predictedAction[0], predictedAction[1], predictedAction[2], predictedAction[3])
+            print(predictedAction)
+
+            #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)
+            #plt.show()
+            #break
+            time.sleep(0.1)
+
+use_model()
