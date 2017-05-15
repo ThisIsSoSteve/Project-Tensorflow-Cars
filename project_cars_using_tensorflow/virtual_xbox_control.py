@@ -7,6 +7,7 @@ control_throttle = 'TriggerR'
 control_brakes = 'TriggerL'
 control_steering = 'AxisLx'
 
+
 def control_car(throttle, brakes, steering_left, steering_right):
 
     throttle = np.absolute(throttle)
@@ -14,9 +15,9 @@ def control_car(throttle, brakes, steering_left, steering_right):
     steering_left = np.absolute(steering_left)
     steering_right = np.absolute(steering_right)
 
-    if throttle > 1:
+    if throttle > 0.9:
         throttle = 1
-    if brakes > 1:
+    if brakes > 0.9:
         brakes = 1
     if steering_left > 1:
         steering_left = 1
@@ -24,8 +25,12 @@ def control_car(throttle, brakes, steering_left, steering_right):
         steering_right = 1
 
     if steering_left > steering_right:
+        #if steering_left > steering_right*5:
+        #    steering_left = 1
         MyVirtual.set_value(control_steering, -steering_left)
     else:
+        #if steering_right > steering_left*5:
+        #    steering_right = 1
         MyVirtual.set_value(control_steering, steering_right)
 
     if throttle > brakes:

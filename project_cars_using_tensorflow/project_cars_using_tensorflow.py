@@ -29,23 +29,50 @@ def maxpool2d(x):
     #                        window size       window movement
     return tf.nn.max_pool(x, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
-def model(X, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden):
+def model(X, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden):
     #X = tf.reshape(X, shape=[-1, image_width, image_height, 1])
     
-    l1 = tf.nn.relu(conv2d(X, w1) + b1)
-    l1 = maxpool2d(l1)
-    l1 = tf.nn.dropout(l1, p_keep_conv)
+    conv1 = tf.layers.conv2d(
+        inputs=X,
+        filters=32,
+        kernel_size=[5, 5],
+        padding='same',
+        activation = tf.nn.relu)
 
-    l2 = tf.nn.relu(conv2d(l1, w2) + b2)
-    l2 = maxpool2d(l2)
-    l2 = tf.nn.dropout(l2, p_keep_conv)
+    conv1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
 
-    l3 = tf.nn.relu(conv2d(l2, w3) + b3)
-    l3 = maxpool2d(l3)
-    l3 = tf.nn.dropout(l3, p_keep_conv)
+    conv2 = tf.layers.conv2d(
+        inputs=conv1,
+        filters=64,
+        kernel_size=[5, 5],
+        padding='same',
+        activation = tf.nn.relu)
 
-    #fully connected
-    l4 = tf.reshape(l3, [-1, 128 * 16 * 9])#16384 
+    conv2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+
+    conv3 = tf.layers.conv2d(
+        inputs=conv2,
+        filters=128,
+        kernel_size=[5, 5],
+        padding='same',
+        activation = tf.nn.relu)
+
+    conv3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=[2, 2], strides=2)
+
+    #l1 = tf.nn.relu(conv2d(X, w1) + b1)
+    #l1 = maxpool2d(l1)
+    #l1 = tf.nn.dropout(l1, p_keep_conv)
+
+    #l2 = tf.nn.relu(conv2d(l1, w2) + b2)
+    #l2 = maxpool2d(l2)
+    #l2 = tf.nn.dropout(l2, p_keep_conv)
+
+    #l3 = tf.nn.relu(conv2d(l2, w3) + b3)
+    #l3 = maxpool2d(l3)
+    #l3 = tf.nn.dropout(l3, p_keep_conv)
+
+    #fully connected #input = 128x72 -> l1 = 64x36 -> l2 = 32x18 -> l3 = 16x9
+    l4 = tf.reshape(conv3, [-1, 128 * 16 * 9]) #output_number * layer_size #73728
     l4 =tf.nn.relu(tf.matmul(l4, w4) + b4)
     l4 = tf.nn.dropout(l4, p_keep_hidden)
 
@@ -110,14 +137,15 @@ def train_model():
     filename_queue = tf.train.string_input_producer([traning_path], num_epochs=None)
     image, label = get_training_data(filename_queue)
 
-    prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
+    #prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
+    prediction = model(x, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(cost)
 
     saver = tf.train.Saver()
     config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.7
-    with tf.Session(config=config) as sess:
+    #config.gpu_options.per_process_gpu_memory_fraction = 0.7
+    with tf.Session() as sess:#config=config
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
 
@@ -129,7 +157,7 @@ def train_model():
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.6, p_keep_hidden: 0.3})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.8, p_keep_hidden: 0.8})
             print (loss_val)
     
         # Wait for threads to finish.
@@ -150,7 +178,7 @@ def use_model():
     import grabber
     import ctypes
     import cv2
-    #import virtual_xbox_control as vc
+    import virtual_xbox_control as vc
     
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
@@ -160,11 +188,12 @@ def use_model():
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabberObject = grabber.Grabber(window=handle)
 
-    prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
+    #prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
+    prediction = model(x, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden)
     saver = tf.train.Saver()
 
     config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.7
+    config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
     with tf.Session(config=config) as sess:
         sess.run(tf.local_variables_initializer())
@@ -182,7 +211,8 @@ def use_model():
             gray_image = np.reshape(gray_image,(1,72,128,1))
 
             predictedAction = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
-            predictedAction = predictedAction[0]
+            predictedAction = sess.run(tf.nn.softmax(predictedAction[0]))
+            #predictedAction = predictedAction[0]
             vc.control_car(predictedAction[0], predictedAction[1], predictedAction[2], predictedAction[3])
             print(predictedAction)
 
