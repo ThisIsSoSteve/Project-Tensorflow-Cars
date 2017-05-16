@@ -139,8 +139,11 @@ def train_model():
 
     #prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
     prediction = model(x, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden)
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(cost)
+
+    #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
+    cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=y))
+
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(cost)
 
     saver = tf.train.Saver()
     config = tf.ConfigProto()
@@ -153,7 +156,7 @@ def train_model():
         threads = tf.train.start_queue_runners(coord=coord)
 
     
-        for i in range(100):
+        for i in range(200):
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
@@ -210,11 +213,23 @@ def use_model():
 
             gray_image = np.reshape(gray_image,(1,72,128,1))
 
-            predictedAction = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
-            predictedAction = sess.run(tf.nn.softmax(predictedAction[0]))
-            #predictedAction = predictedAction[0]
-            vc.control_car(predictedAction[0], predictedAction[1], predictedAction[2], predictedAction[3])
-            print(predictedAction)
+            predicted_actions = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
+
+            #predicted_actions = predicted_actions[0]
+
+            predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
+
+            #predicted_throttle_and_brakes = np.array([predicted_actions[0], predicted_actions[1]]) #throttle, brakes
+            #predicted_steering = np.array([predicted_actions[2], predicted_actions[3]]) #left, right
+            
+            ##predicted_actions = sess.run(tf.nn.softmax(predicted_actions[0]))
+
+            #predicted_throttle_and_brakes = sess.run(tf.nn.softmax(predicted_throttle_and_brakes))
+            #predicted_steering = sess.run(tf.nn.softmax(predicted_steering))
+            
+            vc.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
+            #vc.control_car(predicted_throttle_and_brakes[0], predicted_throttle_and_brakes[1], predicted_steering[0], predicted_steering[1])
+            #print(predicted_actions)
 
             #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)
             #plt.show()

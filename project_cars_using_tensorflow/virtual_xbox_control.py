@@ -10,35 +10,44 @@ control_steering = 'AxisLx'
 
 def control_car(throttle, brakes, steering_left, steering_right):
 
-    throttle = np.absolute(throttle)
-    brakes = np.absolute(brakes)
-    steering_left = np.absolute(steering_left)
-    steering_right = np.absolute(steering_right)
+    #throttle = np.absolute(throttle)
+    #brakes = np.absolute(brakes)
+    #steering_left = np.absolute(steering_left)
+    #steering_right = np.absolute(steering_right)
 
     if throttle > 0.9:
         throttle = 1
     if brakes > 0.9:
         brakes = 1
-    if steering_left > 1:
+    if steering_left > 0.05:
         steering_left = 1
-    if steering_right > 1:
+        steering_right = 0
+    if steering_right > 0.05:
         steering_right = 1
+        steering_left = 0
 
-    if steering_left > steering_right:
-        #if steering_left > steering_right*5:
-        #    steering_left = 1
-        MyVirtual.set_value(control_steering, -steering_left)
-    else:
-        #if steering_right > steering_left*5:
-        #    steering_right = 1
-        MyVirtual.set_value(control_steering, steering_right)
+    #if steering_left < 0.1:
+    #    steering_left = 0
+    #if steering_right < 0.1:
+    #    steering_right = 0
+    
+    #if steering_left > steering_right:
+    #    MyVirtual.set_value(control_steering, steering_left)
+    #else:
+    #    MyVirtual.set_value(control_steering, steering_right)
 
+    steering_left = -steering_left
+    MyVirtual.set_value(control_steering, steering_left + steering_right)
+
+     
     if throttle > brakes:
         MyVirtual.set_value(control_throttle, throttle)
         MyVirtual.set_value(control_brakes, 0)
     else:
         MyVirtual.set_value(control_brakes, brakes)
         MyVirtual.set_value(control_throttle, 0)
+    
+    print("Throttle:", throttle, "Brakes:", brakes, "Steering:", steering_left + steering_right)
 
 '''Set a value on the controller
     All controls will accept a value between -1.0 and 1.0
