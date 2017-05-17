@@ -143,7 +143,7 @@ def train_model():
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=y))
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(cost)
 
     saver = tf.train.Saver()
     config = tf.ConfigProto()
@@ -156,11 +156,11 @@ def train_model():
         threads = tf.train.start_queue_runners(coord=coord)
 
     
-        for i in range(200):
+        for i in range(1000):
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.8, p_keep_hidden: 0.8})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.4, p_keep_hidden: 0.4})
             print (loss_val)
     
         # Wait for threads to finish.
@@ -215,20 +215,9 @@ def use_model():
 
             predicted_actions = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
 
-            #predicted_actions = predicted_actions[0]
-
             predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
-
-            #predicted_throttle_and_brakes = np.array([predicted_actions[0], predicted_actions[1]]) #throttle, brakes
-            #predicted_steering = np.array([predicted_actions[2], predicted_actions[3]]) #left, right
-            
-            ##predicted_actions = sess.run(tf.nn.softmax(predicted_actions[0]))
-
-            #predicted_throttle_and_brakes = sess.run(tf.nn.softmax(predicted_throttle_and_brakes))
-            #predicted_steering = sess.run(tf.nn.softmax(predicted_steering))
             
             vc.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
-            #vc.control_car(predicted_throttle_and_brakes[0], predicted_throttle_and_brakes[1], predicted_steering[0], predicted_steering[1])
             #print(predicted_actions)
 
             #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)
@@ -237,3 +226,4 @@ def use_model():
             time.sleep(0.1)
 
 use_model()
+

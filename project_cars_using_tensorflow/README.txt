@@ -22,11 +22,7 @@ https://github.com/shauleiz/vXboxInterface/releases
 
 python
 
-at the moment use pyxinput
 pip install PYXInput
 pip uninstall PYXInput
-
-need to copy vXboxInterface.dll to pip install location (64 or 32) (create vXboxInterface-x64 or vXboxInterface)
-C:\Users\Steve\AppData\Local\Programs\Python\Python35\Lib\site-packages\pyxinput\vXboxInterface-x64
 
 
