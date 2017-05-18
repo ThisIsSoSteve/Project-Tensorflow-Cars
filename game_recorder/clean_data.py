@@ -41,6 +41,61 @@ def put_training_data_into_one_file():
 
 #put_training_data_into_one_file()
 
+def balance_data():
+
+    training_path = path + 'training_full.npy'
+    training_data = np.load(training_path)
+
+    throttle=[]
+    brakes=[]
+    steer_left=[]
+    steer_right=[]
+    
+    for data in training_data:
+        img = data[0]
+        choices = data[1]
+
+        
+        #needs work
+        if choices[2] > choices[3]: #steer left
+            if choices[0] < 0.9:
+                steer_left.append([img, data])
+                #continue
+
+        if choices[3] > choices[2]: #steer right
+            if choices[0] < 0.9:
+                steer_right.append([img, data])
+                #continue
+
+        if choices[1] > choices[0]: #brake
+            brakes.append([img, data])
+            continue
+
+        if choices[0] > choices[1]: #throttle
+            throttle.append([img, data])
+            continue
+
+        
+    print('original total:', len(training_data))
+    print('throttle:', len(throttle), 'brake:', len(brakes), 'left:', len(steer_left), 'right:', len(steer_right))
+    print('post total:', len(throttle) + len(brakes) + len(steer_left) + len(steer_right))
+
+    choice_counts = np.array([len(throttle), len(brakes), len(steer_left), len(steer_right)])
+    min_index = np.argmin(choice_counts)
+    min_choice_count = choice_counts[min_index]
+
+    print('min choice count:', min_choice_count)
+    throttle = throttle[:min_choice_count]
+    brakes = brakes[:min_choice_count]
+    steer_left = steer_left[:min_choice_count]
+    steer_right = steer_right[:min_choice_count]
+
+    final_data = throttle + brakes + steer_left + steer_right
+
+    np.random.shuffle(final_data)
+    np.save('training_data.npy', final_data)
+
+#balance_data()
 
 def convert_training_data_into_binary():
     print('convert_training_data_into_binary - Starting')
@@ -109,7 +164,7 @@ def test_reading_binary_data():
         break
         #https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
 
-test_reading_binary_data()
+#test_reading_binary_data()
 
 '''
 # get single examples
