@@ -29,7 +29,7 @@ def maxpool2d(x):
     #                        window size       window movement
     return tf.nn.max_pool(x, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
-def model(X, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden):
+def model(X, w4, w_o, b4, b_o, p_keep_hidden):
     #X = tf.reshape(X, shape=[-1, image_width, image_height, 1])
     
     conv1 = tf.layers.conv2d(
@@ -137,8 +137,7 @@ def train_model():
     filename_queue = tf.train.string_input_producer([traning_path], num_epochs=None)
     image, label = get_training_data(filename_queue)
 
-    #prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
-    prediction = model(x, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden)
+    prediction = model(x, w4, w_o, b4, b_o, p_keep_hidden)
 
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=y))
@@ -156,11 +155,11 @@ def train_model():
         threads = tf.train.start_queue_runners(coord=coord)
 
     
-        for i in range(1000):
+        for i in range(2000):
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_conv: 0.4, p_keep_hidden: 0.4})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.6})
             print (loss_val)
     
         # Wait for threads to finish.
@@ -192,7 +191,7 @@ def use_model():
     grabberObject = grabber.Grabber(window=handle)
 
     #prediction = model(x, w1, w2, w3, w4, w_o, b1, b2, b3, b4, b_o, p_keep_conv, p_keep_hidden)
-    prediction = model(x, w4, w_o, b4, b_o, p_keep_conv, p_keep_hidden)
+    prediction = model(x, w4, w_o, b4, b_o, p_keep_hidden)
     saver = tf.train.Saver()
 
     config = tf.ConfigProto()
@@ -213,11 +212,15 @@ def use_model():
 
             gray_image = np.reshape(gray_image,(1,72,128,1))
 
-            predicted_actions = sess.run(prediction, feed_dict={x:gray_image, p_keep_conv: 1.0, p_keep_hidden: 1.0})
+            predicted_actions = sess.run(prediction, feed_dict={x:gray_image, p_keep_hidden: 1.0})
 
             predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
             
             vc.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
+            
+            print("Throttle:", predicted_actions[0], "Brakes:", predicted_actions[1], "left:", predicted_actions[2], 'right', predicted_actions[3])
+
+            
             #print(predicted_actions)
 
             #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)

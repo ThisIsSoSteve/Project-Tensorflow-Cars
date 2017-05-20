@@ -19,12 +19,13 @@ def control_car(throttle, brakes, steering_left, steering_right):
         throttle = 1
     if brakes > 0.9:
         brakes = 1
-    if steering_left > 0.05:
+    if steering_left > 0.9:
         steering_left = 1
-        steering_right = 0
-    if steering_right > 0.05:
+        #steering_right = 0
+
+    if steering_right > 0.9:
         steering_right = 1
-        steering_left = 0
+        #steering_left = 0
 
     #if steering_left < 0.1:
     #    steering_left = 0
@@ -43,11 +44,13 @@ def control_car(throttle, brakes, steering_left, steering_right):
     if throttle > brakes:
         MyVirtual.set_value(control_throttle, throttle)
         MyVirtual.set_value(control_brakes, 0)
+        brakes = 0
     else:
         MyVirtual.set_value(control_brakes, brakes)
         MyVirtual.set_value(control_throttle, 0)
+        throttle = 0
     
-    print("Throttle:", throttle, "Brakes:", brakes, "Steering:", steering_left + steering_right)
+    #print("Throttle:", throttle, "Brakes:", brakes, "Steering:", steering_left + steering_right)
 
 '''Set a value on the controller
     All controls will accept a value between -1.0 and 1.0

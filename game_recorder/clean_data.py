@@ -58,12 +58,12 @@ def balance_data():
         
         #needs work
         if choices[2] > choices[3]: #steer left
-            if choices[0] < 0.9:
+            if choices[0] < 0.2:
                 steer_left.append([img, data])
                 #continue
 
         if choices[3] > choices[2]: #steer right
-            if choices[0] < 0.9:
+            if choices[0] < 0.2:
                 steer_right.append([img, data])
                 #continue
 

@@ -24,20 +24,12 @@
   <ItemGroup>
     <Compile Include="grabber.py" />
     <Compile Include="project_cars_using_tensorflow.py" />
-    <Compile Include="pyxinput\read_state.py" />
-    <Compile Include="pyxinput\virtual_controller.py" />
-    <Compile Include="pyxinput\__init__.py" />
     <Compile Include="virtual_xbox_control.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="pyxinput\vXboxInterface-x64\vXboxInterface.dll" />
     <Content Include="README.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="pyxinput\" />
-    <Folder Include="pyxinput\vXboxInterface-x64\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
