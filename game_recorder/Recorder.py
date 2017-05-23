@@ -17,7 +17,7 @@ if not os.path.exists(folder_name):
     start_up_complete = True
 
 start_countdown = False
-countdown_from = 10 #seconds
+countdown_from = 3 #seconds
 
 
 def countdown(count):
@@ -29,7 +29,7 @@ def countdown(count):
         time.sleep(1)
 
 print('Get Project Cars in focus!')
-countdown(10)
+countdown(3)
 handle = ctypes.windll.user32.GetForegroundWindow()
 grabber = grabber.Grabber(window=handle)
 
@@ -52,18 +52,30 @@ while start_up_complete:
 
         #get data
         pic = grabber.grab(pic)
-        game_state = np.array([game.mThrottle, game.mBrake, game.mSteering])
+        #game_state = np.array([game.mThrottle, game.mBrake, game.mSteering])
+
         #game.mSpeed, game.mRpm, game.mGear,game.mTerrain[0],game.mTerrain[1],game.mTerrain[2],game.mTerrain[3]
+
+        steer_left = 0.0
+        steer_right = 0.0
+
+        steering = game.mUnfilteredSteering
+        if steering < 0:
+            steer_left = steering
+        else:
+            steer_right = steering
+
+        game_state = np.array([game.mUnfilteredThrottle, game.mUnfilteredBrake, steer_left, steer_right])
         #print(game_state)
 
         #save raw data
         #np.save(folder_name + '/data-save_date' + save_date + '.npy', game_state)
         gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-        gray_image = cv2.resize(gray_image, (128,72))#160,120
+        gray_image = cv2.resize(gray_image, (128,72))#16:9 ratio
         #cv2.imwrite(folder_name + '/image-' + save_date + '.png', gray_image)
         np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state])
-        gray_image = None
-        pic = None
+        #gray_image = None
+        #pic = None
 
         print('Save Complete -', save_date)
     else:

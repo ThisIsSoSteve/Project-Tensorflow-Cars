@@ -24,18 +24,18 @@ def put_training_data_into_one_file():
         data = np.load(path + filename)
         #print(data[1])
 
-        label = data[1] 
-        steering_left = 0.0; 
-        steering_right = 0.0; 
+        #label = data[1] 
+        #steering_left = 0.0; 
+        #steering_right = 0.0; 
 
-        #split steering data from (-1 to 1) to (left 0 to 1) and (right 0 to 1)
-        if label[2] > 0:
-            steering_right = label[2]
-        else:
-            steering_left = np.absolute(label[2])
+        ##split steering data from (-1 to 1) to (left 0 to 1) and (right 0 to 1)
+        #if label[2] > 0:
+        #    steering_right = label[2]
+        #else:
+        #    steering_left = np.absolute(label[2])
 
-        label = np.array([label[0], label[1], steering_left, steering_right]) #throttle, brakes, left, right
-        training_data.append([data[0], label]) #image, labels
+        #label = np.array([label[0], label[1], steering_left, steering_right]) #throttle, brakes, left, right
+        training_data.append(data) #image, labels
 
     np.save(path_training, training_data)
     print('put_training_data_into_one_file - Complete')

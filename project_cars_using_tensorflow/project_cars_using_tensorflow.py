@@ -1,5 +1,5 @@
 import os
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #hide CUDA logging
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #hide CUDA logging
 
 #os.environ['CUDA_VISIBLE_DEVICES'] =""
 import tensorflow as tf
@@ -164,7 +164,7 @@ def train_model():
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.5})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.8})
             print (loss_val)
             if i%100 == 0:
                 print('epoch', i)
@@ -173,7 +173,7 @@ def train_model():
         coord.request_stop()
         coord.join(threads)
         saver.save(sess, model_save_path)
-#train_model()
+train_model()
 
 def countdown(count):
     while True:
