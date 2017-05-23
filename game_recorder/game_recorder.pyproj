@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="balance.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="clean_data.py" />
     <Compile Include="grabber.py" />
     <Compile Include="Recorder.py" />

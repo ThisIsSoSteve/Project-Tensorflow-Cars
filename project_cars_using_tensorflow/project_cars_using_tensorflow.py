@@ -76,6 +76,9 @@ def model(X, w4, w_o, b4, b_o, p_keep_hidden):
     l4 =tf.nn.relu(tf.matmul(l4, w4) + b4)
     l4 = tf.nn.dropout(l4, p_keep_hidden)
 
+    #l5 = tf.nn.relu(tf.matmul(l4, w5)+ b5)
+    #l5 = tf.nn.dropout(l5, p_keep_hidden)
+
     output = tf.matmul(l4, w_o) + b_o
 
     return output
@@ -86,17 +89,19 @@ y = tf.placeholder("float", [None, output_size]) #labels
 p_keep_conv = tf.placeholder("float")
 p_keep_hidden = tf.placeholder("float")
 
-w1 = init_weights([5, 5, 1, 32])       # 5x5x1 conv, 32 outputs
-w2 = init_weights([5, 5, 32, 64])     # 5x5x32 conv, 64 outputs
-w3 = init_weights([5, 5, 64, 128])    # 5x5x32 conv, 128 outputs
+#w1 = init_weights([5, 5, 1, 32])       # 5x5x1 conv, 32 outputs
+#w2 = init_weights([5, 5, 32, 64])     # 5x5x32 conv, 64 outputs
+#w3 = init_weights([5, 5, 64, 128])    # 5x5x32 conv, 128 outputs
 w4 = init_weights([128 * 16 * 9, 1024]) # FC 128 * 16 * 9 inputs, 1024 outputs/nodes?
+w5 = init_weights([1024, 1024])
 w_o = init_weights([1024, output_size]) # FC 1024 inputs, 10 outputs (labels)
 
-b1 = init_weights([32])       
-b2 = init_weights([64])     
-b3 = init_weights([128])    
-b4 = init_weights([1024]) 
-b_o = init_weights([output_size])
+#b1 = init_weights([32])       
+#b2 = init_weights([64])     
+#b3 = init_weights([128])    
+b4 = init_biases([1024])
+b5 = init_biases([1024])  
+b_o = init_biases([output_size])
 
 #read and decode training data
 def get_training_data(filename_queue):
@@ -159,8 +164,10 @@ def train_model():
             x_feature, y_label = sess.run([image, label])
             #print(np.array(y_label).shape)
             #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.6})
+            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.5})
             print (loss_val)
+            if i%100 == 0:
+                print('epoch', i)
     
         # Wait for threads to finish.
         coord.request_stop()
@@ -184,6 +191,8 @@ def use_model():
     
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
+
+    controller = vc.virtual_xbox_controller()
 
     print('Get Project Cars in focus!')
     countdown(3)
@@ -215,10 +224,10 @@ def use_model():
             predicted_actions = sess.run(prediction, feed_dict={x:gray_image, p_keep_hidden: 1.0})
 
             predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
+
+            controller.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
             
-            vc.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
-            
-            print("Throttle:", predicted_actions[0], "Brakes:", predicted_actions[1], "left:", predicted_actions[2], 'right', predicted_actions[3])
+            #print("Throttle:", predicted_actions[0], "Brakes:", predicted_actions[1], "left:", predicted_actions[2], 'right', predicted_actions[3])
 
             
             #print(predicted_actions)
