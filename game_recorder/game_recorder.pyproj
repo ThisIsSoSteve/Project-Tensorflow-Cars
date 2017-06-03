@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0d91433b-ea2e-43d9-a50a-a7b8400cd480</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Recorder.py</StartupFile>
+    <StartupFile>clean_data.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

@@ -17,7 +17,7 @@ if not os.path.exists(folder_name):
     start_up_complete = True
 
 start_countdown = False
-countdown_from = 3 #seconds
+countdown_from = 10 #seconds
 
 
 def countdown(count):
@@ -29,7 +29,7 @@ def countdown(count):
         time.sleep(1)
 
 print('Get Project Cars in focus!')
-countdown(3)
+countdown(10)
 handle = ctypes.windll.user32.GetForegroundWindow()
 grabber = grabber.Grabber(window=handle)
 
@@ -61,7 +61,7 @@ while start_up_complete:
 
         steering = game.mUnfilteredSteering
         if steering < 0:
-            steer_left = steering
+            steer_left = np.absolute(steering)
         else:
             steer_right = steering
 

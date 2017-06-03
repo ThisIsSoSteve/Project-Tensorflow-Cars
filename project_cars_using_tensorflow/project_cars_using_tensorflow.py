@@ -173,7 +173,7 @@ def train_model():
         coord.request_stop()
         coord.join(threads)
         saver.save(sess, model_save_path)
-train_model()
+#train_model()
 
 def countdown(count):
     while True:

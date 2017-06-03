@@ -8,7 +8,7 @@ from random import randint
 
 #data/Project_Cars_2017-04-30_10-39-05
 
-path = 'data/Project_Cars_2017-05-20_14-24-50/'
+path = 'data/Project_Cars_2017-05-23_22-23-00/'
 
 def put_training_data_into_one_file():
     print('put_training_data_into_one_file - Starting')
@@ -24,7 +24,7 @@ def put_training_data_into_one_file():
         data = np.load(path + filename)
         #print(data[1])
 
-        #label = data[1] 
+        label = data[1] 
         #steering_left = 0.0; 
         #steering_right = 0.0; 
 
@@ -34,103 +34,13 @@ def put_training_data_into_one_file():
         #else:
         #    steering_left = np.absolute(label[2])
 
-        #label = np.array([label[0], label[1], steering_left, steering_right]) #throttle, brakes, left, right
-        training_data.append(data) #image, labels
+        label = np.array([label[0], label[1], np.absolute(label[2]), label[3]]) #throttle, brakes, left, right
+        training_data.append([data[0],label]) #image, labels
 
     np.save(path_training, training_data)
     print('put_training_data_into_one_file - Complete')
 
 #put_training_data_into_one_file()
-
-#def balance_data():
-
-#    training_path = path + 'training_full.npy'
-#    training_data = np.load(training_path)
-
-#    #throttle=[]
-#    #brakes=[]
-#    #steer_left=[]
-#    #steer_right=[]
-#    max_loops = 100000
-#    current_loop = 0
-#    total_choices = np.array([0.0, 0.0, 0.0, 0.0])
-    
-#    new_training_data = []
-#    #reduce throttle
-#    for data in training_data:
-#        img = data[0]
-#        choices = data[1]
-#        if choices[2] < 0.1 and choices[3] < 0.1 and choices[0] > 0.9:
-#            if randint(0,32) == 0:
-#                new_training_data.append([img, choices])
-#            continue
-#        elif choices[2] > 0.2 or choices[3] > 0.2:#mirror steering 
-#            img = np.fliplr(img)
-#            choices = np.array([choices[0], choices[1], choices[3], choices[2]])
-#            new_training_data.append([img, choices])
-            
-
-#        new_training_data.append([img, choices])
-
-#    training_data = new_training_data
-#    #get total
-#    for data in training_data:
-#        #img = data[0]
-#        choices = data[1]
-#        total_choices = total_choices + choices
-
-    
-#    print('throttle:', total_choices[0], 'brake:', total_choices[1], 'left:', total_choices[2], 'right:', total_choices[3])
-#    #throttle: 8264.02303342 brake: 796.199235596 left: 205.753476897 right: 500.607292515
-
-#    min_index = np.argmin(total_choices)
-#    min_choice_count = total_choices[min_index]
-#    print('min choice count:', min_choice_count)
-
-#    while current_loop < max_loops:
-#        random_index = randint(0, len(training_data)-1)
-
-#        randomly_selected_record = training_data[random_index]
-
-#        #if removed does this help
-#        the_choice = randomly_selected_record[1]
-#        new_total = total_choices - the_choice
-
-#        if new_total[0] >= min_choice_count and new_total[1] >= min_choice_count and new_total[2] >= min_choice_count and new_total[3] >= min_choice_count:
-#            training_data = np.delete(training_data, random_index,0)
-#            total_choices = total_choices - the_choice
-#        #else:
-#            #break
-#        print('loop:', current_loop)
-#        current_loop += 1
-        
-#    final_total = np.array([0.0, 0.0, 0.0, 0.0])
-#    for data in training_data:
-#        choices = data[1]
-#        final_total = total_choices + choices
-#    print('final')
-#    print('throttle:', final_total[0], 'brake:', final_total[1], 'left:', final_total[2], 'right:', final_total[3])
-
-#    #print('original total:', len(training_data))
-#    #print('throttle:', len(throttle), 'brake:', len(brakes), 'left:', len(steer_left), 'right:', len(steer_right))
-#    #print('post total:', len(throttle) + len(brakes) + len(steer_left) + len(steer_right))
-
-#    #choice_counts = np.array([len(throttle), len(brakes), len(steer_left), len(steer_right)])
-#    #min_index = np.argmin(choice_counts)
-#    #min_choice_count = choice_counts[min_index]
-
-#    #print('min choice count:', min_choice_count)
-#    #throttle = throttle[:min_choice_count]
-#    #brakes = brakes[:min_choice_count]
-#    #steer_left = steer_left[:min_choice_count]
-#    #steer_right = steer_right[:min_choice_count]
-
-#    #final_data = throttle + brakes + steer_left + steer_right
-
-#    np.random.shuffle(training_data)
-#    np.save(path + 'training_balance_data.npy', training_data)
-
-#balance_data()
 
 def convert_training_data_into_binary():
     print('convert_training_data_into_binary - Starting')
@@ -169,11 +79,11 @@ def convert_training_data_into_binary():
         writer.write(serialized)
     writer.close()
     print('convert_training_data_into_binary - Complete')
-
-convert_training_data_into_binary()
+#convert_training_data_into_binary()
 
 def test_reading_binary_data():
     traning_path = 'data/project_cars_training_data.tfrecords'
+    count = 0
     for data in tf.python_io.tf_record_iterator(traning_path):
         example = tf.train.Example()
         example.ParseFromString(data)
@@ -187,7 +97,7 @@ def test_reading_binary_data():
         print(test.shape)
 
 
-        print('label', np.array(label).shape)
+        print('label shape:', np.array(label).shape, 'label values:', label)
         ##working with Int64List
         #test = np.reshape(image, (72, 128))
         #print(test.shape)
@@ -197,7 +107,10 @@ def test_reading_binary_data():
 
         plt.matshow(test, cmap=plt.cm.gray)
         plt.show()
-        break
+        if count == 30:
+            break
+        else:
+            count += 1
         #https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
 
 #test_reading_binary_data()
