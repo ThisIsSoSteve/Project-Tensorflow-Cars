@@ -24,10 +24,10 @@ def check_data():
         #print('left', choices[3])
 
         if choices[2] > 0.9:#left
-            steer_left.append([img,choices])
+            steer_left.append([img,[0, choices[1], choices[2], choices[3]]])
             continue
         if choices[3] > 0.9:#right
-            steer_right.append([img,choices])
+            steer_right.append([img,[0, choices[1], choices[2], choices[3]]])
             continue
         if choices[0] < 0.1 and choices[1] > 0.8 and choices[2] < 0.1 and choices[3] < 0.1:#brake
             brakes.append([img,choices])

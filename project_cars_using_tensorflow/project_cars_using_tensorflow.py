@@ -103,77 +103,54 @@ b4 = init_biases([1024])
 b5 = init_biases([1024])  
 b_o = init_biases([output_size])
 
-#read and decode training data
-def get_training_data(filename_queue):
-    reader = tf.TFRecordReader()
-
-    _, data = reader.read(filename_queue)
-    features = tf.parse_single_example(
-      data,
-      features={
-        'image': tf.FixedLenFeature([], tf.string),
-        'label': tf.FixedLenFeature([4], tf.float32)
-        })
-   
-    #print('image', features['image'])
-    image = tf.decode_raw(features['image'], tf.uint8)
-    image_shape = tf.stack([image_height, image_width, 1])#raw shape has to be defined
-    image = tf.reshape(image, image_shape)
-
-    label = features['label']
-
-    #print('label', label)
-    #image = np.fromstring(features['image'], dtype=np.uint8)
-    #image = np.reshape(test, (72, 128))
-
-    images, labels = tf.train.shuffle_batch([image, label],
-                                                 batch_size=128,
-                                                 capacity=(10000 + 3) * 128,
-                                                 num_threads=4,
-                                                 min_after_dequeue=10000)
-
-    return images, labels
-
-#print(image.shape)
+batch_size = 128
+epochs = 2000
+#path = 'data/Project_Cars_2017-05-23_22-23-00/'
 def train_model():
-    #training
-    traning_path = 'project_cars_training_data.tfrecords'
+    #load data
+    training_path = 'training_full.npy'#'training_balance_data.npy'
+    training_data = np.load(training_path)
 
-    filename_queue = tf.train.string_input_producer([traning_path], num_epochs=None)
-    image, label = get_training_data(filename_queue)
+    #np.random.shuffle(training_data)
 
     prediction = model(x, w4, w_o, b4, b_o, p_keep_hidden)
-
-    #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=y))
 
     optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(cost)
 
     saver = tf.train.Saver()
-    config = tf.ConfigProto()
-    #config.gpu_options.per_process_gpu_memory_fraction = 0.7
-    with tf.Session() as sess:#config=config
+
+    with tf.Session() as sess:
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
 
-        coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(coord=coord)
+        for epoch in range(epochs):
+            epoch_loss = 0
+            i = 0
+            np.random.shuffle(training_data)
+            
+            train_x = []
+            train_y = []
+            for data in training_data:
+                train_x.append(np.array(data[0]))
+                train_y.append(np.array(data[1]))
 
-    
-        for i in range(2000):
-            x_feature, y_label = sess.run([image, label])
-            #print(np.array(y_label).shape)
-            #print(np.array(x_feature).shape)
-            _, loss_val = sess.run([optimizer, cost], feed_dict = {x: x_feature, y: y_label, p_keep_hidden: 0.8})
-            print (loss_val)
-            if i%100 == 0:
-                print('epoch', i)
-    
-        # Wait for threads to finish.
-        coord.request_stop()
-        coord.join(threads)
+            while i < len(training_data[0]):
+                start = i
+                end = i + batch_size
+
+                batch_x = np.array(train_x[start:end])
+                batch_y = np.array(train_y[start:end])
+                #batch_x = sess.run(tf.reshape(batch_x, shape=[-1,image_height, image_width, 1]))
+                batch_x = batch_x.reshape((-1,image_height, image_width, 1))
+                #print(np.array(batch_y).shape)
+                #print(np.array(batch_x).shape)
+                _, loss_val = sess.run([optimizer, cost], feed_dict = {x: batch_x, y: batch_y, p_keep_hidden: 0.8})
+                epoch_loss += loss_val
+                i += batch_size
+            print ("Epoch:", epoch + 1, 'Loss:',  epoch_loss)
         saver.save(sess, model_save_path)
-#train_model()
+train_model()
 
 def countdown(count):
     while True:
@@ -237,5 +214,5 @@ def use_model():
             #break
             time.sleep(0.1)
 
-use_model()
+#use_model()
 
