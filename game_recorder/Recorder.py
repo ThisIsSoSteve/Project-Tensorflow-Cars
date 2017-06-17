@@ -73,7 +73,8 @@ while start_up_complete:
         gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.resize(gray_image, (128,72))#16:9 ratio
         #cv2.imwrite(folder_name + '/image-' + save_date + '.png', gray_image)
-        np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state])
+
+        np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state, game.mSpeed])
         #gray_image = None
         #pic = None
 

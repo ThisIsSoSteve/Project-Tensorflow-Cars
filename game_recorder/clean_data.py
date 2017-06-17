@@ -1,5 +1,6 @@
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import tensorflow as tf
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ from random import randint
 
 #data/Project_Cars_2017-04-30_10-39-05
 
-path = 'data/Project_Cars_2017-05-23_22-23-00/'
+path = 'data/Project_Cars_2017-06-10_21-45-44/'
 
 def put_training_data_into_one_file():
     print('put_training_data_into_one_file - Starting')
@@ -22,20 +23,11 @@ def put_training_data_into_one_file():
     #Load
     for filename in tqdm(os.listdir(path)):
         data = np.load(path + filename)
-        #print(data[1])
 
         label = data[1] 
-        #steering_left = 0.0; 
-        #steering_right = 0.0; 
-
-        ##split steering data from (-1 to 1) to (left 0 to 1) and (right 0 to 1)
-        #if label[2] > 0:
-        #    steering_right = label[2]
-        #else:
-        #    steering_left = np.absolute(label[2])
 
         label = np.array([label[0], label[1], np.absolute(label[2]), label[3]]) #throttle, brakes, left, right
-        training_data.append([data[0],label]) #image, labels
+        training_data.append([data[0], label, data[2]]) #image, labels
 
     np.save(path_training, training_data)
     print('put_training_data_into_one_file - Complete')
@@ -114,6 +106,59 @@ def test_reading_binary_data():
         #https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
 
 #test_reading_binary_data()
+
+
+img = tf.Variable(np.zeros((128, 100)))
+Z = tf.Variable(np.ones((128, 1)))
+
+#test = tf.Variable(np.zeros(101))
+
+with tf.Session() as sess:
+
+    sess.run(tf.local_variables_initializer())
+    sess.run(tf.global_variables_initializer())
+
+    #img.assign(np.zeros(100))
+    #Z.assign(np.zeros(1))
+
+    #all = []
+
+    #for i in range(128):
+    #    realImg = img[i]
+    #    realZ = Z[i]
+    #    all.append(tf.concat([realImg, [realZ]], 0))
+
+    #all = tf.stack(all)
+
+    all = tf.concat([img, Z], 1)
+
+    print(sess.run(tf.shape(all)))
+
+    #for i in range(128):
+        #realImg = sess.run(img[i])
+        #realZ = sess.run(Z[i])
+
+        #print(realZ.shape)
+       # both = np.concatenate((realImg, [realZ]), axis=0)
+
+       # all.append(both)
+
+        #print(i, both.shape)
+    
+    
+
+    #testing = tf.stack(all)
+    #print(testing)
+    
+    #newImg = tf.concat([img, Z], 0)
+
+    #shape = sess.run(tf.shape(newImg))
+    #Z = sess.run(tf.shape(Z))
+
+    #print("newImg shape:", shape)
+    #print("newImg 100:", sess.run(newImg[100]))
+
+
 
 '''
 # get single examples

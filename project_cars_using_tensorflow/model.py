@@ -24,26 +24,27 @@ output_size = 4
 
 x = tf.placeholder("float", [None, image_height, image_width, 1]) #input image data
 y = tf.placeholder("float", [None, output_size]) #labels
+z = tf.placeholder("float", [None, 1]) #speed 
 
-p_keep_conv = tf.placeholder("float")
+#p_keep_conv = tf.placeholder("float")
 p_keep_hidden = tf.placeholder("float")
 
 #w1 = init_weights([5, 5, 1, 32])       # 5x5x1 conv, 32 outputs
 #w2 = init_weights([5, 5, 32, 64])     # 5x5x32 conv, 64 outputs
 #w3 = init_weights([5, 5, 64, 128])    # 5x5x32 conv, 128 outputs
-w4 = init_weights([128 * 16 * 9, 1024]) # FC 128 * 16 * 9 inputs, 1024 outputs/nodes?
-w5 = init_weights([1024, 1024])
+w4 = init_weights([128 * 16 * 9 + 1, 1024]) # FC 128 * 16 * 9 inputs, 1024 outputs/nodes?
+#w5 = init_weights([1024, 1024])
 w_o = init_weights([1024, output_size]) # FC 1024 inputs, 10 outputs (labels)
 
 #b1 = init_weights([32])       
 #b2 = init_weights([64])     
 #b3 = init_weights([128])    
 b4 = init_biases([1024])
-b5 = init_biases([1024])  
+#b5 = init_biases([1024])  
 b_o = init_biases([output_size])
 
 
-def myModel(X, p_keep_hidden):
+def myModel(X, Z, p_keep_hidden):
     #X = tf.reshape(X, shape=[-1, image_width, image_height, 1])
     
     conv1 = tf.layers.conv2d(
@@ -87,6 +88,25 @@ def myModel(X, p_keep_hidden):
 
     #fully connected #input = 128x72 -> l1 = 64x36 -> l2 = 32x18 -> l3 = 16x9
     l4 = tf.reshape(conv3, [-1, 128 * 16 * 9]) #output_number * layer_size #73728
+    #l4 = tf.reshape(conv3, [-1])
+
+    #all = []
+
+    #for i in range(128):
+    #    #Layer = l4[i]
+    #    all.append(tf.concat([l4[i], [Z[i]]], 0))
+
+    #l4 = tf.stack(all)
+
+    l4 = tf.concat([l4, Z], 1)
+
+    l4 = tf.reshape(l4, [-1, 128 * 16 * 9 + 1])
+    #l4 = tf.reshape(l4, [-1, 128 * 16 * 9]) 
+
+    #l4 = tf.concat([l4, Z], 0)#ConcatOp : Ranks of all input tensors should match: shape[0] = [128,18432] vs. shape[1] = [128]
+    #l4 = np.array([l4, Z]) #find tensorflow 
+
+    #Dimensions must be equal, but are 18433 and 18432 for 'MatMul' (op: 'MatMul') with input shapes: [128,18433], [18432,1025].
     l4 =tf.nn.relu(tf.matmul(l4, w4) + b4)
     l4 = tf.nn.dropout(l4, p_keep_hidden)
 
