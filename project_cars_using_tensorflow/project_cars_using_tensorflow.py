@@ -15,6 +15,10 @@ batch_size = 128
 epochs = 2000
 #path = 'data/Project_Cars_2017-05-23_22-23-00/'
 def train_model():
+
+    global_step = tf.Variable(0, trainable=False)
+    starter_learning_rate = 0.001
+    learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step, 1000, 0.96, staircase=True)
     #load data
     training_path = 'training_full.npy'#'training_balance_data.npy'
     training_data = np.load(training_path)
@@ -22,7 +26,7 @@ def train_model():
     prediction = model.myModel(model.x, model.z, model.p_keep_hidden)
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=model.y))
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step = global_step)
 
     saver = tf.train.Saver()
 
@@ -65,7 +69,9 @@ def train_model():
                 epoch_loss += loss_val
                 i += batch_size
                 #print('end', i)
-            print ('Epoch:', epoch + 1, 'Loss:',  epoch_loss)
+            #print ('Epoch:', epoch + 1, 'Loss:',  epoch_loss)
+
+            print('Global Step', sess.run(global_step), 'Loss', epoch_loss,'Learning Rate', sess.run(learning_rate))
         saver.save(sess, model_save_path)
 #train_model()
 

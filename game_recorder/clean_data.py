@@ -11,6 +11,19 @@ from random import randint
 
 path = 'data/Project_Cars_2017-06-18_12-58-05/'
 
+def mirror_data(traning_data_to_mirror):
+
+    data = traning_data_to_mirror
+
+    img = data[0]
+    label = data[1]
+
+    img = np.fliplr(img)
+
+    choices = np.array([label[0], label[1], label[3], np.absolute(label[2])])
+
+    return np.array([np.float16(img / 255.0), choices, data[2] / 50.0])
+
 def put_training_data_into_one_file():
     print('put_training_data_into_one_file - Starting')
 
@@ -24,55 +37,61 @@ def put_training_data_into_one_file():
     for filename in tqdm(os.listdir(path)):
         data = np.load(path + filename)
 
-
-
         label = data[1] 
-
         label = np.array([label[0], label[1], np.absolute(label[2]), label[3]]) #throttle, brakes, left, right
-        training_data.append([np.float16(data[0] / 255), label, data[2] / 50]) #image, labels
+
+        training_data.append([np.float16(data[0] / 255.0), label, data[2] / 50.0]) #image, labels, speed
+
+        #mirror
+        #image = np.fliplr(data[0])
+        #label = data[1]
+        #label = np.array([label[0], label[1], label[3]], np.absolute(label[2]))
+        #training_data.append([np.float16(data[0] / 255.0), label, data[2] / 50.0])
+
+        #training_data.append(mirror_data(data))
 
     np.save(path_training, training_data)
     print('put_training_data_into_one_file - Complete')
 
 put_training_data_into_one_file()
 
-def convert_training_data_into_binary():
-    print('convert_training_data_into_binary - Starting')
+#def convert_training_data_into_binary():
+#    print('convert_training_data_into_binary - Starting')
 
-    #training_path = path + 'training_full.npy'
-    training_path = path + 'training_balance_data.npy'
-    training_data = np.load(training_path)
-    np.random.shuffle(training_data)
+#    #training_path = path + 'training_full.npy'
+#    training_path = path + 'training_balance_data.npy'
+#    training_data = np.load(training_path)
+#    np.random.shuffle(training_data)
 
-    writer = tf.python_io.TFRecordWriter("data/project_cars_training_data.tfrecords")
-    #WIDTH = 128
-    #HEIGHT = 72
-    for data in tqdm(training_data):
-        features = data[0].flatten()# needs reshaping when use conv2d
-        label = data[1]#.astype('float32')
+#    writer = tf.python_io.TFRecordWriter("data/project_cars_training_data.tfrecords")
+#    #WIDTH = 128
+#    #HEIGHT = 72
+#    for data in tqdm(training_data):
+#        features = data[0].flatten()# needs reshaping when use conv2d
+#        label = data[1]#.astype('float32')
 
-        #print(label.shape)
+#        #print(label.shape)
 
-        example = tf.train.Example(
-            # Example contains a Features proto object
-            features=tf.train.Features(
-              # Features contains a map of string to Feature proto objects
-              feature={
-                # A Feature contains one of either a int64_list,
-                # float_list, or bytes_list
-                'label': tf.train.Feature(
-                    float_list=tf.train.FloatList(value=label)),#Int64List
-                'image': tf.train.Feature(
-                    bytes_list=tf.train.BytesList(value=[features.tobytes()])),#smaller training file size
-                    #int64_list=tf.train.Int64List(value=features.astype('int64'))),
-        }))
+#        example = tf.train.Example(
+#            # Example contains a Features proto object
+#            features=tf.train.Features(
+#              # Features contains a map of string to Feature proto objects
+#              feature={
+#                # A Feature contains one of either a int64_list,
+#                # float_list, or bytes_list
+#                'label': tf.train.Feature(
+#                    float_list=tf.train.FloatList(value=label)),#Int64List
+#                'image': tf.train.Feature(
+#                    bytes_list=tf.train.BytesList(value=[features.tobytes()])),#smaller training file size
+#                    #int64_list=tf.train.Int64List(value=features.astype('int64'))),
+#        }))
 
-        # use the proto object to serialize the example to a string
-        serialized = example.SerializeToString()
-        # write the serialized object to disk
-        writer.write(serialized)
-    writer.close()
-    print('convert_training_data_into_binary - Complete')
+#        # use the proto object to serialize the example to a string
+#        serialized = example.SerializeToString()
+#        # write the serialized object to disk
+#        writer.write(serialized)
+#    writer.close()
+#    print('convert_training_data_into_binary - Complete')
 #convert_training_data_into_binary()
 
 
