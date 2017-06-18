@@ -6,8 +6,7 @@
     <ProjectGuid>32e04200-efa7-47ec-8907-fd2385d08921</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>project_cars_using_tensorflow.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>..\game_recorder\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>project_cars_using_tensorflow</Name>
@@ -22,7 +21,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="grabber.py" />
     <Compile Include="model.py">
       <SubType>Code</SubType>
     </Compile>

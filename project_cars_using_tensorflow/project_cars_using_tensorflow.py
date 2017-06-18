@@ -6,6 +6,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import model
+import image
 
 
 model_save_path = 'E:/repos/Project-Tensorflow-Cars/project_cars_using_tensorflow/model/project_tensorflow_car_model.ckpt'
@@ -21,7 +22,7 @@ def train_model():
     prediction = model.myModel(model.x, model.z, model.p_keep_hidden)
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=model.y))
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
 
     saver = tf.train.Saver()
 
@@ -41,6 +42,7 @@ def train_model():
             train_y = []
             train_z = [] #speed
             for data in training_data:#better way?
+
                 train_x.append(np.array(data[0]))
                 train_y.append(np.array(data[1]))
                 train_z.append(np.array(data[2])) 
@@ -110,12 +112,18 @@ def use_model():
             #grab the screen 
             
             if game.mGameState == 2:
-                gameSpeed = np.array([game.mSpeed])
+                gameSpeed = np.array([game.mSpeed / 50.0])
                 gameSpeed = np.reshape(gameSpeed, (1, 1))
                 pic = grabberObject.grab(pic)
+
+                pic = image.filter(pic)
+
                 gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
                 gray_image = cv2.resize(gray_image, (128,72))
-                gray_image = np.reshape(gray_image,(1,72,128,1))
+                gray_image = np.reshape(gray_image,(1,72,128,1)) 
+
+                gray_image = np.float16(gray_image / 255.0)
+                #gray_image[gray_image == 0] = -1.0
 
                 predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed ,model.p_keep_hidden: 1.0})
 

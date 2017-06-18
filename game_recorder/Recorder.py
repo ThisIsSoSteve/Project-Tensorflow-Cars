@@ -6,9 +6,10 @@ from datetime import datetime
 import time
 import numpy as np
 import os
+import image
 
 start_up_complete = False
-capture_rate = 0.2
+capture_rate = 0.1
 
 folder_name = 'data/Project_Cars_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
@@ -52,6 +53,8 @@ while start_up_complete:
 
         #get data
         pic = grabber.grab(pic)
+        pic = image.filter(pic)
+
         #game_state = np.array([game.mThrottle, game.mBrake, game.mSteering])
 
         #game.mSpeed, game.mRpm, game.mGear,game.mTerrain[0],game.mTerrain[1],game.mTerrain[2],game.mTerrain[3]
@@ -73,7 +76,7 @@ while start_up_complete:
         gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.resize(gray_image, (128,72))#16:9 ratio
         #cv2.imwrite(folder_name + '/image-' + save_date + '.png', gray_image)
-
+        
         np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state, game.mSpeed])
         #gray_image = None
         #pic = None

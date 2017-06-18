@@ -4,7 +4,7 @@ import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning) 
 
 
-
+#not used
 def check_data():
     path = 'data/Project_Cars_2017-05-23_22-23-00/'
 

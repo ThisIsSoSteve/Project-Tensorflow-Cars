@@ -1,7 +1,7 @@
 import numpy as np
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-import tensorflow as tf
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+#import tensorflow as tf
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -9,7 +9,7 @@ from random import randint
 
 #data/Project_Cars_2017-04-30_10-39-05
 
-path = 'data/Project_Cars_2017-06-10_21-45-44/'
+path = 'data/Project_Cars_2017-06-18_12-58-05/'
 
 def put_training_data_into_one_file():
     print('put_training_data_into_one_file - Starting')
@@ -24,15 +24,17 @@ def put_training_data_into_one_file():
     for filename in tqdm(os.listdir(path)):
         data = np.load(path + filename)
 
+
+
         label = data[1] 
 
         label = np.array([label[0], label[1], np.absolute(label[2]), label[3]]) #throttle, brakes, left, right
-        training_data.append([data[0], label, data[2]]) #image, labels
+        training_data.append([np.float16(data[0] / 255), label, data[2] / 50]) #image, labels
 
     np.save(path_training, training_data)
     print('put_training_data_into_one_file - Complete')
 
-#put_training_data_into_one_file()
+put_training_data_into_one_file()
 
 def convert_training_data_into_binary():
     print('convert_training_data_into_binary - Starting')
@@ -73,92 +75,99 @@ def convert_training_data_into_binary():
     print('convert_training_data_into_binary - Complete')
 #convert_training_data_into_binary()
 
-def test_reading_binary_data():
-    traning_path = 'data/project_cars_training_data.tfrecords'
-    count = 0
-    for data in tf.python_io.tf_record_iterator(traning_path):
-        example = tf.train.Example()
-        example.ParseFromString(data)
-        image = example.features.feature['image'].bytes_list.value[0]
-        #image = example.features.feature['image'].int64_list.value
-        label = example.features.feature['label'].float_list.value
+
+
+
+def filter_images():
+    training_path = path + 'training_full.npy'
+    training_data = np.load(training_path)
+    np.random.shuffle(training_data)
+
+    lower_limit = 40
+    higher_limit = 160
+
+    amount_of_pictures = 30
+    
+    for x in range(amount_of_pictures):
+        data =  training_data[x]
+        print('speed:', data[2])
+        #plt.matshow(data[0], vmin=0, vmax=255, cmap=plt.cm.gray)
+        #plt.savefig('E:/repos/pics/original/image' + str(x) + '.png')
+        #plt.close()
+        #plt.clf()
+
+    #for x in range(amount_of_pictures):
+    #    data =  training_data[x]
+        
+
+    #    data[0][data[0] < lower_limit] = 0
+    #    data[0][data[0] > higher_limit] = 0
+
+
+        #plt.matshow(data[0], vmin=0, vmax=255, cmap=plt.cm.gray)
+        #plt.savefig('E:/repos/pics/filtered/image' + str(x) + '.png')
+        #plt.close()
+        #plt.clf()
+
+    #plt.matshow(data[0], cmap=plt.cm.gray)
+    #plt.show()
+
+#filter_images()
+
+#region old stuff
+#def test_reading_binary_data():
+#    traning_path = 'data/project_cars_training_data.tfrecords'
+#    count = 0
+#    for data in tf.python_io.tf_record_iterator(traning_path):
+#        example = tf.train.Example()
+#        example.ParseFromString(data)
+#        image = example.features.feature['image'].bytes_list.value[0]
+#        #image = example.features.feature['image'].int64_list.value
+#        label = example.features.feature['label'].float_list.value
         
         
-        test = np.fromstring(image, dtype=np.uint8)
-        test = np.reshape(test, (72, 128))
-        print(test.shape)
+#        test = np.fromstring(image, dtype=np.uint8)
+#        test = np.reshape(test, (72, 128))
+#        print(test.shape)
 
 
-        print('label shape:', np.array(label).shape, 'label values:', label)
-        ##working with Int64List
-        #test = np.reshape(image, (72, 128))
-        #print(test.shape)
+#        print('label shape:', np.array(label).shape, 'label values:', label)
+#        ##working with Int64List
+#        #test = np.reshape(image, (72, 128))
+#        #print(test.shape)
 
-        #plt.imshow(test, cmap='Greys_r')
+#        #plt.imshow(test, cmap='Greys_r')
 
 
-        plt.matshow(test, cmap=plt.cm.gray)
-        plt.show()
-        if count == 30:
-            break
-        else:
-            count += 1
-        #https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
+#        plt.matshow(test, cmap=plt.cm.gray)
+#        plt.show()
+#        if count == 30:
+#            break
+#        else:
+#            count += 1
+#        #https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
 
 #test_reading_binary_data()
 
 
-img = tf.Variable(np.zeros((128, 100)))
-Z = tf.Variable(np.ones((128, 1)))
-
-#test = tf.Variable(np.zeros(101))
-
-with tf.Session() as sess:
-
-    sess.run(tf.local_variables_initializer())
-    sess.run(tf.global_variables_initializer())
-
-    #img.assign(np.zeros(100))
-    #Z.assign(np.zeros(1))
-
-    #all = []
-
-    #for i in range(128):
-    #    realImg = img[i]
-    #    realZ = Z[i]
-    #    all.append(tf.concat([realImg, [realZ]], 0))
-
-    #all = tf.stack(all)
-
-    all = tf.concat([img, Z], 1)
-
-    print(sess.run(tf.shape(all)))
-
-    #for i in range(128):
-        #realImg = sess.run(img[i])
-        #realZ = sess.run(Z[i])
-
-        #print(realZ.shape)
-       # both = np.concatenate((realImg, [realZ]), axis=0)
-
-       # all.append(both)
-
-        #print(i, both.shape)
-    
-    
-
-    #testing = tf.stack(all)
-    #print(testing)
-    
-    #newImg = tf.concat([img, Z], 0)
-
-    #shape = sess.run(tf.shape(newImg))
-    #Z = sess.run(tf.shape(Z))
-
-    #print("newImg shape:", shape)
-    #print("newImg 100:", sess.run(newImg[100]))
 
 
+
+#img = tf.Variable(np.zeros((128, 100)))
+#Z = tf.Variable(np.ones((128, 1)))
+
+#with tf.Session() as sess:
+
+#    sess.run(tf.local_variables_initializer())
+#    sess.run(tf.global_variables_initializer())
+
+#    all = tf.concat([img, Z], 1)
+
+#    print(sess.run(tf.shape(all)))
+
+
+
+#endregion
 
 '''
 # get single examples

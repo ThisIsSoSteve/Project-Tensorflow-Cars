@@ -26,6 +26,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="clean_data.py" />
+    <Compile Include="image.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="grabber.py" />
     <Compile Include="Recorder.py" />
     <Compile Include="UsingCarseourToGetProjectCarsData.py" />
