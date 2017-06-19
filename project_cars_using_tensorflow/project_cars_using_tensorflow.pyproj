@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>32e04200-efa7-47ec-8907-fd2385d08921</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>project_cars_using_tensorflow.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>..\game_recorder\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -21,10 +21,21 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="modes.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="model.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="project_cars_using_tensorflow.py" />
+    <Compile Include="train.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="use.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="virtual_xbox_control.py">
       <SubType>Code</SubType>
     </Compile>

@@ -7,6 +7,7 @@ import time
 import numpy as np
 import os
 import image
+import countdown
 
 start_up_complete = False
 capture_rate = 0.1
@@ -20,17 +21,8 @@ if not os.path.exists(folder_name):
 start_countdown = False
 countdown_from = 10 #seconds
 
-
-def countdown(count):
-    while True:
-        print('Countdown -', count)
-        if count == 0:
-            break
-        count -= 1
-        time.sleep(1)
-
 print('Get Project Cars in focus!')
-countdown(10)
+countdown.begin_from(10)
 handle = ctypes.windll.user32.GetForegroundWindow()
 grabber = grabber.Grabber(window=handle)
 
@@ -40,7 +32,7 @@ while start_up_complete:
     game = carseour.snapshot()
 
     if start_countdown and game.mGameState == 2:
-        countdown(countdown_from)
+        countdown.begin_from(countdown_from)
         start_countdown = False
 
     
