@@ -5,7 +5,7 @@ from modes import Mode
 import train
 import use
 
-use_mode = Mode.Train
+use_mode = Mode.Use
 
 checkpoint_save_path = 'E:/repos/Project-Tensorflow-Cars/project_cars_using_tensorflow/model/project_tensorflow_car_model.ckpt'
 
