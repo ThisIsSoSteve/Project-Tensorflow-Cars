@@ -3,8 +3,8 @@ import os
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 #import tensorflow as tf
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+#import matplotlib.pyplot as plt
+#import matplotlib.image as mpimg
 from random import randint
 
 #data/Project_Cars_2017-04-30_10-39-05
