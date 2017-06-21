@@ -14,7 +14,7 @@ Project Cars (game)
 
 Carseour https://github.com/matslindh/carseour (uses the games api to get values out)
 
-Tensorflow
+Tensorflow 1.2 https://www.tensorflow.org/
 
 PYXInput https://github.com/bayangan1991/PYXInput (virtual Xbox controller) 
 
