@@ -4,7 +4,7 @@ import pyxinput
 import grabber
 import cv2
 import ctypes
-import image
+#import image
 
 from datetime import datetime
 import time
@@ -13,6 +13,7 @@ import countdown
 import numpy as np
 import os
 import pickle
+
 
 def Start(capture_rate, root_save_folder):
     start_up_complete = False
@@ -24,24 +25,26 @@ def Start(capture_rate, root_save_folder):
     if root_save_folder == '':
         raise ValueError('Please specify a root directory e.g E:/myData')
 
-    folder_name = root_save_folder + '/Project_Cars_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    folder_name = root_save_folder #+ '/Project_Cars_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     #folder_name = 'E:/Project_Cars_Data/Project_Cars_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
-        start_up_complete = True
+
+    start_up_complete = True
 
     start_countdown = False
     countdown_from = 10 #seconds
 
     print('Get Project Cars in focus!')
-    countdown.begin_from(10)
+    countdown.begin_from(3)
     handle = ctypes.windll.user32.GetForegroundWindow()
-    grabber = grabber.Grabber(window=handle)
+    grabber1 = grabber.Grabber(window=handle)
 
 
     project_cars_state = carseour.live()
     #game = carseour.snapshot()
+    controller_state = pyxinput.rController(1)
 
     while start_up_complete:
 
@@ -56,7 +59,9 @@ def Start(capture_rate, root_save_folder):
             pic = None
 
             #get data
-            pic = grabber.grab(pic)
+            pic = grabber1.grab(pic)
+            pic = cv2.resize(pic, (640,360))
+            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
 
             #game_state = np.array([game.mThrottle, game.mBrake, game.mSteering])
 
@@ -69,13 +74,19 @@ def Start(capture_rate, root_save_folder):
             #gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
             #gray_image = cv2.resize(gray_image, (128,72))#16:9 ratio
 
-            controller_state = pyxinput.rController(1)
-
-            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
+            read = controller_state.gamepad
+            controls = {'wButtons' : read.wButtons,
+                        'left_trigger': read.left_trigger, 
+                        'right_trigger' : read.right_trigger, 
+                        'thumb_lx': read.thumb_lx, 
+                        'thumb_ly': read.thumb_ly, 
+                        'thumb_rx': read.thumb_rx, 
+                        'thumb_ry': read.thumb_ry}
+                     
 
             with open(folder_name + '/' + save_file_name + '-data.pkl', 'wb') as output:
                 pickle.dump(project_cars_state, output, pickle.HIGHEST_PROTOCOL)
-                pickle.dump(controller_state, output, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(controls, output, pickle.HIGHEST_PROTOCOL)
 
         
             #np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state, game.mSpeed])
