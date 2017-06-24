@@ -5,7 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0d91433b-ea2e-43d9-a50a-a7b8400cd480</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Recorder.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,9 +23,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="balance.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="clean_data.py" />
     <Compile Include="countdown.py">
       <SubType>Code</SubType>
@@ -33,7 +31,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="grabber.py" />
-    <Compile Include="Recorder.py" />
     <Compile Include="UsingCarseourToGetProjectCarsData.py" />
   </ItemGroup>
   <ItemGroup>

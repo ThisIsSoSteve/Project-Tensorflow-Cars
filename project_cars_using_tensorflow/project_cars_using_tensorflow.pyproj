@@ -30,6 +30,7 @@
     <Compile Include="model.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="record.py" />
     <Compile Include="train.py">
       <SubType>Code</SubType>
     </Compile>
