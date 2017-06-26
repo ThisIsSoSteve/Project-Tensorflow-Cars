@@ -22,7 +22,7 @@ def use_model(checkpoint_save_path):
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabberObject = grabber.Grabber(window=handle)
 
-    prediction = model.myModel(model.x, model.z, model.p_keep_hidden)
+    prediction = model.myModel(model.x, model.p_keep_hidden)# model.z
     saver = tf.train.Saver()
 
     config = tf.ConfigProto()
@@ -38,18 +38,19 @@ def use_model(checkpoint_save_path):
         while True:
             
             if game.mGameState == 2:
-                gameSpeed = np.array([game.mSpeed / 50.0])
-                gameSpeed = np.reshape(gameSpeed, (1, 1))
+                #gameSpeed = np.array([game.mSpeed])
+                #gameSpeed = np.reshape(gameSpeed, (1, 1))
 
                 pic = grabberObject.grab(pic)#grab the screen 
-                pic = image.filter(pic)
+                #pic = image.filter(pic)
                 gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
                 gray_image = cv2.resize(gray_image, (128,72))
                 gray_image = np.reshape(gray_image,(1,72,128,1)) 
                 gray_image = np.float16(gray_image / 255.0)
                 #gray_image[gray_image == 0] = -1.0
 
-                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
+                #predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
+                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0})
 
                 predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
 

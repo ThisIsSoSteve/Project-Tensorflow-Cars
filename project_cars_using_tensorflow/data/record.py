@@ -60,9 +60,6 @@ def Start(capture_rate, root_save_folder):
 
             #get data
             pic = grabber1.grab(pic)
-            pic = cv2.resize(pic, (640,360))
-            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
-
             #game_state = np.array([game.mThrottle, game.mBrake, game.mSteering])
 
             #game.mSpeed, game.mRpm, game.mGear,game.mTerrain[0],game.mTerrain[1],game.mTerrain[2],game.mTerrain[3]
@@ -83,7 +80,8 @@ def Start(capture_rate, root_save_folder):
                         'thumb_rx': read.thumb_rx, 
                         'thumb_ry': read.thumb_ry}
                      
-
+            pic = cv2.resize(pic, (640,360))
+            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
             with open(folder_name + '/' + save_file_name + '-data.pkl', 'wb') as output:
                 pickle.dump(project_cars_state, output, pickle.HIGHEST_PROTOCOL)
                 pickle.dump(controls, output, pickle.HIGHEST_PROTOCOL)
