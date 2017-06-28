@@ -9,13 +9,13 @@ from data import data_transform
 
 use_mode = Mode.Use
 
-checkpoint_save_path = 'E:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model.ckpt'
-raw_data_save_path = 'E:/Project_Cars_Data/Raw'
-training_data_save_path = 'E:/Project_Cars_Data/Training'
+checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model.ckpt'
+raw_data_save_path = 'F:/Project_Cars_Data/Raw'
+training_data_save_path = 'F:/Project_Cars_Data/Training'
 
 if use_mode == Mode.Train:
     #number, epochs, learning_rate
-    train.train_model(2000, 210, 0.001, training_data_save_path, checkpoint_save_path)
+    train.train_model(1000, 1300, 0.001, training_data_save_path, checkpoint_save_path)
 
 if use_mode == Mode.Use:
     use.use_model(checkpoint_save_path)

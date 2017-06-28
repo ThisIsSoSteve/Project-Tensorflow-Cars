@@ -22,13 +22,14 @@ def use_model(checkpoint_save_path):
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabberObject = grabber.Grabber(window=handle)
 
-    prediction = model.myModel(model.x, model.p_keep_hidden)# model.z
+    prediction = model.myModel(model.x, model.p_keep_hidden, model.p_is_training)# model.z
     saver = tf.train.Saver()
 
-    config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.5
+    game_running = False
+    #config = tf.ConfigProto()
+   # config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
-    with tf.Session(config=config) as sess:
+    with tf.Session() as sess:#config=config
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
         saver.restore(sess, checkpoint_save_path)
@@ -38,6 +39,7 @@ def use_model(checkpoint_save_path):
         while True:
             
             if game.mGameState == 2:
+                game_running = True
                 #gameSpeed = np.array([game.mSpeed])
                 #gameSpeed = np.reshape(gameSpeed, (1, 1))
 
@@ -50,7 +52,7 @@ def use_model(checkpoint_save_path):
                 #gray_image[gray_image == 0] = -1.0
 
                 #predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
-                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0})
+                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0, model.p_is_training: False})
 
                 predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
 
@@ -63,4 +65,7 @@ def use_model(checkpoint_save_path):
                 #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)
                 #plt.show()
                 #break
-                time.sleep(0.1)
+                time.sleep(0.01)
+            elif game_running:
+                print('paused')
+                game_running = False;

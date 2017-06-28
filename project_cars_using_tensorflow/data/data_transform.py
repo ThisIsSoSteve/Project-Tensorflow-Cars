@@ -6,6 +6,14 @@ import pickle
 from tqdm import tqdm
 import image
 
+def mirror_data(image, label):
+
+    image = np.fliplr(image)
+
+    choices = np.array([label[0], label[1], label[3], label[2]])
+
+    return np.array([image, choices])
+
 def raw_to_training_data(raw_save_path, training_save_path):
     print('Starting')
 
@@ -62,6 +70,9 @@ def raw_to_training_data(raw_save_path, training_save_path):
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
         #label = np.array([project_cars_state.mUnfilteredThrottle, project_cars_state.mUnfilteredBrake, steering_left, steering_right])
         training_data.append([gray_image, label]) #,speed
+
+        training_data.append(mirror_data(gray_image, label))
+
 
     np.save(path_training, training_data)
 
