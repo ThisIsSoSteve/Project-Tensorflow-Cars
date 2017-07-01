@@ -64,7 +64,7 @@ def myModel(X, p_keep_hidden, p_is_training):
     l4 = tf.contrib.layers.flatten(conv4)
 
     #l4 = tf.concat([l4, Z], 1)
-    #l4 = tf.reshape(l4, [-1, tf.size(l4[0])])#128 * 16 * 9 + 1])#18432
+    #l4 = tf.reshape(l4, [-1, tf.size(l4[0])])
 
     l4 = tf.contrib.layers.fully_connected(
         inputs = l4, 

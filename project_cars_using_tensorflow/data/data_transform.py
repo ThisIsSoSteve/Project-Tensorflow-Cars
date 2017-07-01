@@ -28,6 +28,9 @@ def raw_to_training_data(raw_save_path, training_save_path):
 
     listing = glob.glob(raw_save_path + '/*.png')
 
+    file_limit = 1500
+    current = 0
+
     for filename in tqdm(listing):
         
         filename = filename.replace('\\','/')
@@ -43,7 +46,7 @@ def raw_to_training_data(raw_save_path, training_save_path):
             project_cars_state = pickle.load(input)
             controller_state = pickle.load(input)
 
-        speed = project_cars_state.mSpeed
+        speed = np.array([project_cars_state.mSpeed / 55])
 
         throttle = controller_state['right_trigger'] #0 - 255
         brakes = controller_state['left_trigger'] #0 - 255
@@ -64,15 +67,19 @@ def raw_to_training_data(raw_save_path, training_save_path):
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
         #gray_image = image.filter(gray_image)
         #gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
-        gray_image = cv2.resize(gray_image, (128,72)) #16:9 ratio
+        gray_image = cv2.resize(gray_image, (128, 72)) #16:9 ratio
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
         #label = np.array([project_cars_state.mUnfilteredThrottle, project_cars_state.mUnfilteredBrake, steering_left, steering_right])
         training_data.append([gray_image, label]) #,speed
 
-        training_data.append(mirror_data(gray_image, label))
+        #training_data.append(mirror_data(gray_image, label))
+        
+        #if current > file_limit:
+            #break
 
+        #current += 1
 
     np.save(path_training, training_data)
 

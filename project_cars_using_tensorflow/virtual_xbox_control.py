@@ -16,6 +16,7 @@ class virtual_xbox_controller:
             throttle = 1.0
         if brakes > 0.8:
             brakes = 1.0
+            throttle  = 0
         if steering_left > 0.9:
             steering_left = 1.0
             steering_right = 0

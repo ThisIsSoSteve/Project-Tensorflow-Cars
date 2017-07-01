@@ -67,5 +67,6 @@ def use_model(checkpoint_save_path):
                 #break
                 time.sleep(0.01)
             elif game_running:
-                print('paused')
+                controller.control_car(0, 0, 0, 0)
+                print('Paused')
                 game_running = False;
