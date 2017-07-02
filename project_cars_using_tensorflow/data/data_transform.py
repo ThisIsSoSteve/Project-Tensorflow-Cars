@@ -11,7 +11,11 @@ def mirror_data(image, label):
 
     choices = np.array([label[0], label[1], label[3], label[2]])
 
+    #cv2.imshow("image", image);
+    #cv2.waitKey();
+    
     return np.array([image, choices])
+
 
 def raw_to_training_data(raw_save_path, training_save_path):
     print('Starting')
@@ -22,14 +26,16 @@ def raw_to_training_data(raw_save_path, training_save_path):
     if os.path.exists(path_training):
         os.remove(path_training)
 
+    path_training_test = training_save_path + '/training_test.npy'
+    if os.path.exists(path_training_test):
+        os.remove(path_training_test)
+
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
 
     listing = glob.glob(raw_save_path + '/*.png')
 
-    file_limit = 1500
     current = 0
-
     for filename in tqdm(listing):
         
         filename = filename.replace('\\','/')
@@ -66,19 +72,26 @@ def raw_to_training_data(raw_save_path, training_save_path):
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
         #gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.resize(gray_image, (128, 72)) #16:9 ratio
-        gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        #gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
         #label = np.array([project_cars_state.mUnfilteredThrottle, project_cars_state.mUnfilteredBrake, steering_left, steering_right])
         training_data.append([gray_image, label]) #,speed
 
-        #training_data.append(mirror_data(gray_image, label))
+        training_data.append(mirror_data(gray_image, label))
         
-        #if current > file_limit:
-            #break
+        if current > 1500:
+            break
 
-        #current += 1
+        current += 1
+
+    np.random.shuffle(training_data)
+    percent_of_test_data = int((len(training_data) / 100) * 20) #20%
+
+    test_data = np.array(training_data[0:percent_of_test_data])
+    training_data = np.array(training_data[percent_of_test_data:])
 
     np.save(path_training, training_data)
+    np.save(path_training_test, test_data)
 
     print('Complete')

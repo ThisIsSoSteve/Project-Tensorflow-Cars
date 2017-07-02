@@ -7,7 +7,7 @@ import use
 from data import record
 from data import data_transform
 
-use_mode = Mode.Use
+use_mode = Mode.Create_Training_Data
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 #checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.749215.ckpt-9000'
