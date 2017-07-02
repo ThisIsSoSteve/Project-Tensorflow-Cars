@@ -31,4 +31,5 @@ if use_mode == Mode.Record:
     record.Start(0.1, raw_data_save_path)
 
 if use_mode == Mode.Create_Training_Data:
-    data_transform.raw_to_training_data(raw_data_save_path, training_data_save_path)
+    #data_transform.raw_to_training_data(raw_data_save_path, training_data_save_path)
+    data_transform.raw_to_HDF5(raw_data_save_path, training_data_save_path)

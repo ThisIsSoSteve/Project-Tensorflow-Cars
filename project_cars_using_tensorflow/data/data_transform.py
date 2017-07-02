@@ -4,6 +4,12 @@ import cv2
 import glob
 import pickle
 from tqdm import tqdm
+from tables import *
+
+
+class training_data(IsDescription):
+    image = Float16Col(shape=(128, 72))
+    label = Float16Col(shape=(1, 4))
 
 def mirror_data(image, label):
 
@@ -15,6 +21,28 @@ def mirror_data(image, label):
     #cv2.waitKey();
     
     return np.array([image, choices])
+
+
+def raw_to_HDF5(raw_save_path, training_save_path):
+
+    path_training = training_save_path + '/training.h5'
+
+    h5file = open_file(path_training, mode = "w", title = "Training Data")
+
+    group = h5file.create_group("/", 'training', 'Training information')
+
+    table = h5file.create_table(group, 'data', training_data, "Data")
+
+    #print(h5file)
+
+    training_data_pointer = table.row
+
+    for i in range(10):
+        training_data_pointer['image'] = np.ones((128, 72), dtype = np.float16)
+        training_data_pointer['label'] = np.ones((1, 4), dtype = np.float16)
+        training_data_pointer.append()
+
+    table.flush()
 
 
 def raw_to_training_data(raw_save_path, training_save_path):

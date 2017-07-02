@@ -1,10 +1,10 @@
 import time
-import countdown
+from common import countdown
 import numpy as np
 
 import tensorflow as tf
 import model
-import grabber
+from common import grabber
 import ctypes
 import cv2
 import virtual_xbox_control as vc
