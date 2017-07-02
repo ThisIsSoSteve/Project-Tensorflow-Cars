@@ -72,7 +72,7 @@ def raw_to_training_data(raw_save_path, training_save_path):
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
         #gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.resize(gray_image, (128, 72)) #16:9 ratio
-        #gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
         #label = np.array([project_cars_state.mUnfilteredThrottle, project_cars_state.mUnfilteredBrake, steering_left, steering_right])
