@@ -21,6 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="common\countdown.py" />
+    <Compile Include="common\grabber.py" />
+    <Compile Include="common\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="data\data_transform.py">
       <SubType>Code</SubType>
     </Compile>
@@ -48,10 +53,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\variablesAvailable.txt" />
     <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\" />
+    <Folder Include="common\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -23,15 +23,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="clean_data.py" />
     <Compile Include="countdown.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="image.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="grabber.py" />
-    <Compile Include="UsingCarseourToGetProjectCarsData.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="variablesAvailable.txt" />

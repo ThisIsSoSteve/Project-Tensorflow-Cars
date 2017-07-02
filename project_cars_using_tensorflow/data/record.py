@@ -4,7 +4,6 @@ import pyxinput
 import grabber
 import cv2
 import ctypes
-#import image
 
 from datetime import datetime
 import time
@@ -40,7 +39,6 @@ def Start(capture_rate, root_save_folder):
     countdown.begin_from(3)
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabber1 = grabber.Grabber(window=handle)
-
 
     project_cars_state = carseour.live()
     #game = carseour.snapshot()

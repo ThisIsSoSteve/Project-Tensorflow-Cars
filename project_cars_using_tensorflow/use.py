@@ -4,7 +4,6 @@ import numpy as np
 
 import tensorflow as tf
 import model
-import image
 import grabber
 import ctypes
 import cv2
@@ -44,7 +43,6 @@ def use_model(checkpoint_save_path):
                 #gameSpeed = np.reshape(gameSpeed, (1, 1))
 
                 pic = grabberObject.grab(pic)#grab the screen 
-                #pic = image.filter(pic)
                 gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
                 gray_image = cv2.resize(gray_image, (128,72))
                 gray_image = np.reshape(gray_image,(1,72,128,1)) 

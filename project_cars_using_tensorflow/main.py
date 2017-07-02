@@ -7,13 +7,13 @@ import use
 from data import record
 from data import data_transform
 
-use_mode = Mode.Train
+use_mode = Mode.Use
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 #checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.749215.ckpt-9000'
 checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/model 78.2%/project_tensorflow_car_model_0.782688.ckpt-15280'
 raw_data_save_path = 'F:/Project_Cars_Data/Raw'
-training_data_save_path = 'C:/Project_Cars_Data/Training'
+training_data_save_path = 'F:/Project_Cars_Data/Training'
 
 if use_mode == Mode.Train:
     #number, epochs, learning_rate

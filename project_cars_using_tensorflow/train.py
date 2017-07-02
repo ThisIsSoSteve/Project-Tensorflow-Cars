@@ -2,8 +2,6 @@ import os
 import tensorflow as tf
 import numpy as np
 import model
-import image
-
 
 def init_batches(training_file_path, batch_size):
      #load data
