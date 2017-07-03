@@ -8,8 +8,8 @@ from tables import *
 
 
 class training_data(IsDescription):
-    image = Float16Col(shape=(128, 72))
-    label = Float16Col(shape=(1, 4))
+    image = Float16Col(shape=(72, 128))
+    label = Float16Col(shape=(4))
 
 def mirror_data(image, label):
 
@@ -25,31 +25,9 @@ def mirror_data(image, label):
 
 def raw_to_HDF5(raw_save_path, training_save_path):
 
-    path_training = training_save_path + '/training.h5'
-
-    h5file = open_file(path_training, mode = "w", title = "Training Data")
-
-    group = h5file.create_group("/", 'training', 'Training information')
-
-    table = h5file.create_table(group, 'data', training_data, "Data")
-
-    #print(h5file)
-
-    training_data_pointer = table.row
-
-    for i in range(10):
-        training_data_pointer['image'] = np.ones((128, 72), dtype = np.float16)
-        training_data_pointer['label'] = np.ones((1, 4), dtype = np.float16)
-        training_data_pointer.append()
-
-    table.flush()
-
-
-def raw_to_training_data(raw_save_path, training_save_path):
     print('Starting')
 
-    training_data = []
-
+    #Setup
     path_training = training_save_path + '/training.npy'
     if os.path.exists(path_training):
         os.remove(path_training)
@@ -63,14 +41,18 @@ def raw_to_training_data(raw_save_path, training_save_path):
 
     listing = glob.glob(raw_save_path + '/*.png')
 
-    current = 0
+    training_data_array = []
+
+    #current = 0
+
     for filename in tqdm(listing):
-        
+
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
 
         training_data_record = []
 
+        #Get labels
         label = []
         project_cars_state = None
         controller_state = None
@@ -78,8 +60,6 @@ def raw_to_training_data(raw_save_path, training_save_path):
         with open(filename + '-data.pkl', 'rb') as input:
             project_cars_state = pickle.load(input)
             controller_state = pickle.load(input)
-
-        speed = np.array([project_cars_state.mSpeed / 55])
 
         throttle = controller_state['right_trigger'] #0 - 255
         brakes = controller_state['left_trigger'] #0 - 255
@@ -94,32 +74,81 @@ def raw_to_training_data(raw_save_path, training_save_path):
         else:
             steering_right = steering
             steering_left = 0
-        #print('speed:', speed, 'throttle:', throttle / 255, 'brakes', brakes / 255, 'steer left', steering_left / 32768, 'steer right', steering_right / 32767)
-        #print('speed:', speed, 'throttle:', project_cars_state.mUnfilteredThrottle , 'brakes', project_cars_state.mUnfilteredBrake, 'steering', project_cars_state.mUnfilteredSteering)
-        
+
+        #convert image
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
-        #gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.resize(gray_image, (128, 72)) #16:9 ratio
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
-        #label = np.array([project_cars_state.mUnfilteredThrottle, project_cars_state.mUnfilteredBrake, steering_left, steering_right])
-        training_data.append([gray_image, label]) #,speed
 
-        training_data.append(mirror_data(gray_image, label))
-        
-        if current > 1500:
-            break
+        training_data_array.append([gray_image, label])
 
-        current += 1
+        #if current > 1000:
+        #    break
+        #current += 1
 
-    np.random.shuffle(training_data)
-    percent_of_test_data = int((len(training_data) / 100) * 20) #20%
+    np.random.shuffle(training_data_array)
+    percent_of_test_data = int((len(training_data_array) / 100) * 20) #20%
 
-    test_data = np.array(training_data[0:percent_of_test_data])
-    training_data = np.array(training_data[percent_of_test_data:])
+    test_data_array = np.array(training_data_array[0:percent_of_test_data])
+    training_data_array = np.array(training_data_array[percent_of_test_data:])
 
-    np.save(path_training, training_data)
-    np.save(path_training_test, test_data)
+    #PyTable Setup for training data
+    path_training = training_save_path + '/training.h5'
 
-    print('Complete')
+    h5file = open_file(path_training, mode = "w", title = "Training Data")
+
+    group = h5file.create_group("/", 'training', 'Training information')
+
+    table = h5file.create_table(group, 'data', training_data, "Data")
+    #print(h5file)
+    training_data_pointer = table.row
+
+    for data in tqdm(training_data_array):
+        training_data_pointer['image'] = data[0] 
+        training_data_pointer['label'] = data[1]
+        training_data_pointer.append()
+
+    table.flush()
+    h5file.close()
+
+    #PyTable Setup for testing data
+    path_training = training_save_path + '/training_test.h5'
+
+    h5file = open_file(path_training, mode = "w", title = "Training Data")
+
+    group = h5file.create_group("/", 'training', 'Training information')
+
+    table = h5file.create_table(group, 'data', training_data, "Data")
+
+    training_data_pointer = table.row
+
+    for data in tqdm(test_data_array):
+        training_data_pointer['image'] = data[0] 
+        training_data_pointer['label'] = data[1]
+        training_data_pointer.append()
+
+    table.flush()
+    h5file.close()
+
+
+    ##read test
+    ##table = h5file.root.training.data
+    ##labels = [x['label'] for x in table.iterrows()]
+    #f = open_file(path_training, mode='r')
+    #read = f.root.training.data
+    #images = [x['image'] for x in read.iterrows()]
+
+    ##print(images[0])
+
+    ###check image
+    ##img = np.array(images[0] * 255, dtype = np.uint8)
+    ##cv2.imshow("image", img);
+    ##cv2.waitKey();
+
+    #f.flush()
+    #f.close()
+    #print('Complete')
+
+    #todo read h5 in training
