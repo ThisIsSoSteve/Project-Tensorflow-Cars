@@ -5,11 +5,8 @@ import glob
 import pickle
 from tqdm import tqdm
 from tables import *
-
-
-class training_data(IsDescription):
-    image = Float16Col(shape=(72, 128))
-    label = Float16Col(shape=(4))
+from random import shuffle
+from math import ceil
 
 def mirror_data(image, label):
 
@@ -43,7 +40,7 @@ def raw_to_HDF5(raw_save_path, training_save_path):
 
     training_data_array = []
 
-    #current = 0
+    current = 0
 
     for filename in tqdm(listing):
 
@@ -77,78 +74,103 @@ def raw_to_HDF5(raw_save_path, training_save_path):
 
         #convert image
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
-        gray_image = cv2.resize(gray_image, (128, 72)) #16:9 ratio
-        gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        gray_image = cv2.resize(gray_image, (128, 72), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
+        #gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        gray_image = gray_image.reshape(72, 128, 1)
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
 
         training_data_array.append([gray_image, label])
+        #training_data_array.append(mirror_data(gray_image, label))
+        if current > 1000:
+            break
+        current += 1
 
-        #if current > 1000:
-        #    break
-        #current += 1
+    print('total data records', len(training_data_array)) 
 
     np.random.shuffle(training_data_array)
-    percent_of_test_data = int((len(training_data_array) / 100) * 20) #20%
 
-    test_data_array = np.array(training_data_array[0:percent_of_test_data])
+    #Split validation set from training data
+    percent_of_test_data = int((len(training_data_array) / 100) * 20) #20%
+    validation_data_array = np.array(training_data_array[0:percent_of_test_data])
+
     training_data_array = np.array(training_data_array[percent_of_test_data:])
+
 
     #PyTable Setup for training data
     path_training = training_save_path + '/training.h5'
 
-    h5file = open_file(path_training, mode = "w", title = "Training Data")
+    hdf5_file = open_file(path_training, mode = "w")
 
-    group = h5file.create_group("/", 'training', 'Training information')
+    img_dtype = UInt8Atom()
+    data_shape = (0, 72, 128, 1)
 
-    table = h5file.create_table(group, 'data', training_data, "Data")
-    #print(h5file)
-    training_data_pointer = table.row
+    training_images_storage = hdf5_file.create_earray(hdf5_file.root, 'training_images', img_dtype, shape=data_shape)
+    validation_images_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_images', img_dtype, shape=data_shape)
+
+    training_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'training_labels', Float16Atom(), shape=(0,4))
+    validation_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_labels', Float16Atom(), shape=(0,4))
 
     for data in tqdm(training_data_array):
-        training_data_pointer['image'] = data[0] 
-        training_data_pointer['label'] = data[1]
-        training_data_pointer.append()
+        training_images_storage.append(data[0][None])
+        training_labels_storage.append(data[1][None])
 
-    table.flush()
-    h5file.close()
+    for data in tqdm(validation_data_array):
+        validation_images_storage.append(data[0][None])
+        validation_labels_storage.append(data[1][None])
 
-    #PyTable Setup for testing data
-    path_training = training_save_path + '/training_test.h5'
-
-    h5file = open_file(path_training, mode = "w", title = "Training Data")
-
-    group = h5file.create_group("/", 'training', 'Training information')
-
-    table = h5file.create_table(group, 'data', training_data, "Data")
-
-    training_data_pointer = table.row
-
-    for data in tqdm(test_data_array):
-        training_data_pointer['image'] = data[0] 
-        training_data_pointer['label'] = data[1]
-        training_data_pointer.append()
-
-    table.flush()
-    h5file.close()
+    hdf5_file.close()
 
 
-    ##read test
+def read_test():
+    batch_size = 100
+    path_training = 'F:/Project_Cars_Data/Training/training.h5'
     ##table = h5file.root.training.data
     ##labels = [x['label'] for x in table.iterrows()]
-    #f = open_file(path_training, mode='r')
-    #read = f.root.training.data
-    #images = [x['image'] for x in read.iterrows()]
 
-    ##print(images[0])
+    #my_array = np.array([1, 2], dtype=np.int)
+
+    hdf5_file = open_file(path_training, mode='r')
+    #read = f.root.training.data
+    #images, labels = [x[:] for x in read.iterrows()][3]
+
+    data_num = hdf5_file.root.training_images.shape[0]
+    print(data_num)
+    # create list of batches to shuffle the data
+    batches_list = list(range(int(ceil(float(data_num) / batch_size))))
+    shuffle(batches_list)
+
+    #print(len(batches_list))
+
+    for number, index in enumerate(batches_list):
+        
+        batch_starting_index = index * batch_size
+        batch_ending_index = min([(index + 1) * batch_size, data_num]) 
+        print(batch_starting_index, batch_ending_index)
+
+        images = hdf5_file.root.training_images[batch_starting_index:batch_ending_index]
+        labels = hdf5_file.root.training_labels[batch_starting_index:batch_ending_index]
+
+        print(labels[0].shape)
+        print(labels[0])
+
+        print(images[0].shape)
+        img = np.array(images[0])
+        cv2.imshow("image", img);
+        cv2.waitKey();
+    
+    #http://www.pytables.org/usersguide/libref/structured_storage.html
+    #https://stackoverflow.com/questions/21039772/pytables-read-random-subset
+    #print(images)
+    #print(labels)
 
     ###check image
     ##img = np.array(images[0] * 255, dtype = np.uint8)
     ##cv2.imshow("image", img);
     ##cv2.waitKey();
 
-    #f.flush()
-    #f.close()
-    #print('Complete')
+    hdf5_file.flush()
+    hdf5_file.close()
+    print('Complete')
 
-    #todo read h5 in training
+#read_test()
