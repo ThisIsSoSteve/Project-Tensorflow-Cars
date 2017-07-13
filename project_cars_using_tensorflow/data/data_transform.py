@@ -40,7 +40,7 @@ def raw_to_HDF5(raw_save_path, training_save_path):
 
     training_data_array = []
 
-    current = 0
+    #current = 0
 
     for filename in tqdm(listing):
 
@@ -75,17 +75,18 @@ def raw_to_HDF5(raw_save_path, training_save_path):
         #convert image
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
         gray_image = cv2.resize(gray_image, (128, 72), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
-        #gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         gray_image = gray_image.reshape(72, 128, 1)
 
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
 
         training_data_array.append([gray_image, label])
         #training_data_array.append(mirror_data(gray_image, label))
-        if current > 1000:
-            break
-        current += 1
+        #if current > 1000:
+        #    break
+        #current += 1
 
+   
     print('total data records', len(training_data_array)) 
 
     np.random.shuffle(training_data_array)
@@ -102,14 +103,14 @@ def raw_to_HDF5(raw_save_path, training_save_path):
 
     hdf5_file = open_file(path_training, mode = "w")
 
-    img_dtype = UInt8Atom()
+    img_dtype = Float16Atom()
     data_shape = (0, 72, 128, 1)
 
-    training_images_storage = hdf5_file.create_earray(hdf5_file.root, 'training_images', img_dtype, shape=data_shape)
-    validation_images_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_images', img_dtype, shape=data_shape)
+    training_images_storage = hdf5_file.create_earray(hdf5_file.root, 'training_images', img_dtype, shape=data_shape, expectedrows=len(training_data_array))
+    validation_images_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_images', img_dtype, shape=data_shape, expectedrows=len(validation_data_array))
 
-    training_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'training_labels', Float16Atom(), shape=(0,4))
-    validation_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_labels', Float16Atom(), shape=(0,4))
+    training_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'training_labels', Float16Atom(), shape=(0,4), expectedrows=len(training_data_array))
+    validation_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_labels', Float16Atom(), shape=(0,4), expectedrows=len(validation_data_array))
 
     for data in tqdm(training_data_array):
         training_images_storage.append(data[0][None])

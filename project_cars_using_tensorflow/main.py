@@ -7,11 +7,11 @@ import use
 from data import record
 from data import data_transform
 
-use_mode = Mode.Create_Training_Data
+use_mode = Mode.Use
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
-#checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.749215.ckpt-9000'
-checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/model 78.2%/project_tensorflow_car_model_0.782688.ckpt-15280'
+checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.767372.ckpt-170'
+#checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/model 78.2%/project_tensorflow_car_model_0.782688.ckpt-15280'
 raw_data_save_path = 'F:/Project_Cars_Data/Raw'
 training_data_save_path = 'F:/Project_Cars_Data/Training'
 
@@ -21,7 +21,7 @@ if use_mode == Mode.Train:
 
 if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
-    train.train_model(100000, 1300, 0.0001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
+    train.train_model(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:
     use.use_model(checkpoint_use_path)

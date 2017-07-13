@@ -44,7 +44,7 @@ def use_model(checkpoint_save_path):
 
                 pic = grabberObject.grab(pic)#grab the screen 
                 gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-                gray_image = cv2.resize(gray_image, (128,72))
+                gray_image = cv2.resize(gray_image, (72, 128))
                 gray_image = np.reshape(gray_image,(1,72,128,1)) 
                 gray_image = np.float16(gray_image / 255.0)
                 #gray_image[gray_image == 0] = -1.0
