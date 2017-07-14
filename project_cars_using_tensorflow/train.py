@@ -177,13 +177,16 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
 
     saver = tf.train.Saver(max_to_keep=10)
 
-    best_accuracy = 0.783
+    best_accuracy = 0.20
 
     training_data = np.load(training_file_path + '/training.npy')
     validation_data = np.load(training_file_path + '/training_validation.npy')
 
-    number_of_training_records = len(training_data[0])
-    number_of_validation_records = len(validation_data[0])
+    number_of_training_records = len(training_data)
+    number_of_validation_records = len(validation_data)
+
+    print('number of training records', number_of_training_records)
+    print('number of validation records', number_of_validation_records)
 
     print('finished loading data')
 
@@ -241,13 +244,16 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
                 starting_batch_index += batch_size
 
             
-            step = sess.run(global_step)
+            step += 1
+            sess.run(global_step.assign(step))
             print('Global Step', step, 'Loss', epoch_loss)
            
 
             if(step % 10 == 0):
+                current_accuracy = 0
                 current_accuracys = []
                 starting_batch_index = 0
+                print(number_of_validation_records)
                 while starting_batch_index < number_of_validation_records:
 
                     start = starting_batch_index
@@ -258,14 +264,13 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
 
                     validation_batch_x = validation_batch_x.reshape((-1, model.image_height, model.image_width, 1))
 
-
                     current_accuracys.append(accuracy.eval(feed_dict={model.x: validation_batch_x, model.y: validation_batch_y, model.p_keep_hidden: 1.0, model.p_is_training: False}))
                     starting_batch_index += batch_size
-
+                print(current_accuracys)
                 current_accuracy = np.average(current_accuracys)
                
                 print('Accuracy %g' % current_accuracy)
-                if current_accuracy > best_accuracy:
+                if current_accuracy > best_accuracy or step % 100:
                     best_accuracy = current_accuracy
                     saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_accuracy) +'.ckpt', global_step=step)
                     print('Saved CheckPoint', str(current_accuracy) )
