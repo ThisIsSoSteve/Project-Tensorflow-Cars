@@ -94,7 +94,7 @@ def raw_to_array(raw_save_path):
         label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
 
         training_data_array.append([gray_image, label])
-        #training_data_array.append(mirror_data(gray_image, label))
+        training_data_array.append(mirror_data(gray_image, label))
         #if current > 1000:
         #    break
         #current += 1

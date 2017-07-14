@@ -7,7 +7,7 @@ from tqdm import tqdm
 from tables import *
 from random import shuffle
 from math import ceil
-import data_transform
+from data import data_transform
 
 #NOT USED
 
@@ -21,7 +21,7 @@ def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
 
-    training_data_array = raw_to_array(raw_save_path)
+    training_data_array = data_transform.raw_to_array(raw_save_path)
 
     if shuffle:
         np.random.shuffle(training_data_array)
