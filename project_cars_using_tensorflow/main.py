@@ -11,19 +11,19 @@ from data import create_hdf5_file
 use_mode = Mode.Use 
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
-checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.739989.ckpt-90'
-#checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/model 78.2%/project_tensorflow_car_model_0.782688.ckpt-15280'
+checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.755337.ckpt-800'
+#checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/76.5/project_tensorflow_car_model_0.765369.ckpt-450'
 raw_data_save_path = 'F:/Project_Cars_Data/Raw'
 training_data_save_path = 'F:/Project_Cars_Data/Training'
 
 if use_mode == Mode.Train:
     #number, epochs, learning_rate
-    train.train_model(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, '')
+    train.train_model(100000, 1300, 0.0001, training_data_save_path, checkpoint_save_path, '')
     #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, '')
 
 if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
-    train.train_model(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
+    train.train_model(100000, 1300, 0.0001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
     #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:

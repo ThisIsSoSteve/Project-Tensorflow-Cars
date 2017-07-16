@@ -80,8 +80,9 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
                 current_accuracy = np.average(current_accuracys)
                
                 print('Accuracy %g' % current_accuracy)
-                if current_accuracy > best_accuracy or step % 100 == 0:
-                    best_accuracy = current_accuracy
+                if current_accuracy > best_accuracy or step % 50 == 0:
+                    if current_accuracy > best_accuracy:
+                        best_accuracy = current_accuracy
                     saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_accuracy) +'.ckpt', global_step=step)
                     print('Saved CheckPoint', str(current_accuracy) )
 
