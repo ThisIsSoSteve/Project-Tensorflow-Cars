@@ -14,6 +14,8 @@ class virtual_xbox_controller:
 
         if throttle > 0.95:
             throttle = 1.0
+        if brakes > 0.6:
+            throttle  = 0
         if brakes > 0.8:
             brakes = 1.0
             throttle  = 0
