@@ -14,8 +14,8 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
 
     #prediction = model.myModel(model.x, model.z, model.p_keep_hidden)
     prediction = model.myModel(model.x, model.p_keep_hidden, model.p_is_training)
-    #cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=model.y))
-    cost = tf.reduce_mean(tf.square(model.y - tf.nn.sigmoid(prediction)))
+    cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=model.y))
+    #cost = tf.reduce_mean(tf.square(model.y - tf.nn.sigmoid(prediction)))
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step = global_step)#epsilon =1e-04
 
     correct = tf.equal(tf.round(tf.nn.sigmoid(prediction) * 10.0), tf.round(model.y) * 10.0)
@@ -58,7 +58,7 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
                 batch_x = hdf5_file.root.training_images[batch_starting_index:batch_ending_index]
                 batch_y = hdf5_file.root.training_labels[batch_starting_index:batch_ending_index]
 
-                _, loss_val = sess.run([optimizer, cost], feed_dict = {model.x: batch_x, model.y: batch_y, model.p_keep_hidden: 0.8, model.p_is_training: True})
+                _, loss_val = sess.run([optimizer, cost], feed_dict = {model.x: batch_x, model.y: batch_y, model.p_keep_hidden: 0.9, model.p_is_training: True})
 
                 epoch_loss += loss_val
 

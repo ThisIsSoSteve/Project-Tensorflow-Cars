@@ -31,6 +31,7 @@ def myModel(X, p_keep_hidden, p_is_training):
         num_outputs = 8,
         stride=[2, 2],
         kernel_size=[3, 3],
+        data_format="NHWC",
         activation_fn = tf.nn.elu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
         biases_initializer=tf.constant_initializer(0.1))
@@ -101,15 +102,15 @@ def myModel(X, p_keep_hidden, p_is_training):
 
     fcl1 = tf.nn.dropout(fcl1, p_keep_hidden)
 
-    fcl2 = tf.contrib.layers.fully_connected(
-        inputs = fcl1, 
-        num_outputs = 32, 
-        activation_fn=tf.nn.elu,
-        weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.1)
-        )
+    #fcl2 = tf.contrib.layers.fully_connected(
+    #    inputs = fcl1, 
+    #    num_outputs = 32, 
+    #    activation_fn=tf.nn.elu,
+    #    weights_initializer=tf.contrib.layers.xavier_initializer(),
+    #    biases_initializer=tf.constant_initializer(0.1)
+    #    )
 
-    fcl2 = tf.nn.dropout(fcl2, p_keep_hidden)
+    #fcl2 = tf.nn.dropout(fcl2, p_keep_hidden)
 
     #fcl3 = tf.contrib.layers.fully_connected(
     #    inputs = fcl2, 
@@ -130,7 +131,7 @@ def myModel(X, p_keep_hidden, p_is_training):
     #fcl4 = tf.nn.dropout(fcl4, p_keep_hidden)
 
     output = tf.contrib.layers.fully_connected(
-        inputs = fcl2, 
+        inputs = fcl1, 
         num_outputs = output_size, 
         activation_fn=None,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
