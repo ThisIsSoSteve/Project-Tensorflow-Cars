@@ -100,7 +100,7 @@ def myModel(X, p_keep_hidden, p_is_training):
 
     #l4 = tf.contrib.layers.batch_norm(l4, center=True, scale=True, is_training=p_is_training, activation_fn = tf.nn.relu)
 
-    fcl1 = tf.nn.dropout(fcl1, p_keep_hidden)
+    #fcl1 = tf.nn.dropout(fcl1, p_keep_hidden)
 
     #fcl2 = tf.contrib.layers.fully_connected(
     #    inputs = fcl1, 

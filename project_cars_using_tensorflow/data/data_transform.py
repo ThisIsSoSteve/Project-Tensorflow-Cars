@@ -75,6 +75,10 @@ def raw_to_array(raw_save_path):
         brakes = controller_state['left_trigger'] #0 - 255
         steering = controller_state['thumb_lx'] #-32768 - 32767
 
+        if throttle == 0 and brakes ==0 and steering == 0:
+            print(filename, 'nothing happening')
+            continue
+
         steering_left = 0
         steering_right = 0
 
