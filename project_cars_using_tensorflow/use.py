@@ -21,7 +21,7 @@ def use_model(checkpoint_save_path):
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabberObject = grabber.Grabber(window=handle)
 
-    prediction = model.myModel(model.x, model.p_keep_hidden, model.p_is_training)# model.z
+    prediction = model.myModel(model.x, model.p_keep_hidden, model.batch_size)# model.z
     saver = tf.train.Saver()
 
     game_running = False
@@ -50,7 +50,7 @@ def use_model(checkpoint_save_path):
                 #gray_image[gray_image == 0] = -1.0
 
                 #predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
-                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0, model.p_is_training: False})
+                predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0, model.batch_size: 1})
 
                 predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
 

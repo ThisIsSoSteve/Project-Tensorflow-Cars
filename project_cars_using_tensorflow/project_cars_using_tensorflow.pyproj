@@ -26,6 +26,9 @@
     <Compile Include="common\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BasicConvLSTMCell.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="data\create_hdf5_file.py">
       <SubType>Code</SubType>
     </Compile>

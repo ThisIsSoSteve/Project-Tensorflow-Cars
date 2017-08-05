@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import BasicConvLSTMCell
 
 #image size 128,72
 image_width = 128
@@ -12,9 +13,9 @@ y = tf.placeholder(tf.float32, [None, output_size]) #labels
 #z = tf.placeholder(tf.float32, [None, 1]) #speed 
 
 p_keep_hidden = tf.placeholder(tf.float32)
-p_is_training = tf.placeholder(tf.bool)
+batch_size = tf.placeholder(tf.int32)
 
-def myModel(X, p_keep_hidden, p_is_training):
+def myModel(X, p_keep_hidden, batch_size):
 
     conv1 = tf.contrib.layers.convolution2d(
         inputs=X,
@@ -25,6 +26,7 @@ def myModel(X, p_keep_hidden, p_is_training):
         activation_fn = tf.nn.elu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
         biases_initializer=tf.constant_initializer(0.1))
+    
 
     conv2 = tf.contrib.layers.convolution2d(
         inputs=conv1,
@@ -35,6 +37,23 @@ def myModel(X, p_keep_hidden, p_is_training):
         activation_fn = tf.nn.elu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
         biases_initializer=tf.constant_initializer(0.1))
+
+
+    with tf.variable_scope('conv2_lstm2', initializer = tf.constant_initializer(0.1)):#tf.random_uniform_initializer(-.01, 0.1)):
+      cell = BasicConvLSTMCell.BasicConvLSTMCell([12,22], [2,2], 8, activation=tf.nn.elu)
+      #if hidden is None:
+      hidden = cell.zero_state(batch_size, tf.int32) 
+      convLstm1, hidden = cell(conv2, hidden)
+
+    #conv3 = tf.contrib.layers.convolution2d(
+    #    inputs=conv2,
+    #    num_outputs = 8,
+    #    stride=[3, 3],
+    #    kernel_size=[2, 2],
+    #    data_format="NHWC",
+    #    activation_fn = tf.nn.elu,
+    #    weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+    #    biases_initializer=tf.constant_initializer(0.1))
 
     #conv1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
 
@@ -102,13 +121,13 @@ def myModel(X, p_keep_hidden, p_is_training):
 
     #fcl1 = tf.nn.dropout(fcl1, p_keep_hidden)
 
-    #fcl2 = tf.contrib.layers.fully_connected(
-    #    inputs = fcl1, 
-    #    num_outputs = 32, 
-    #    activation_fn=tf.nn.elu,
-    #    weights_initializer=tf.contrib.layers.xavier_initializer(),
-    #    biases_initializer=tf.constant_initializer(0.1)
-    #    )
+    fcl2 = tf.contrib.layers.fully_connected(
+        inputs = fcl1, 
+        num_outputs = 32, 
+        activation_fn=tf.nn.elu,
+        weights_initializer=tf.contrib.layers.xavier_initializer(),
+        biases_initializer=tf.constant_initializer(0.1)
+        )
 
     #fcl2 = tf.nn.dropout(fcl2, p_keep_hidden)
 
@@ -131,7 +150,7 @@ def myModel(X, p_keep_hidden, p_is_training):
     #fcl4 = tf.nn.dropout(fcl4, p_keep_hidden)
 
     output = tf.contrib.layers.fully_connected(
-        inputs = fcl1, 
+        inputs = fcl2, 
         num_outputs = output_size, 
         activation_fn=None,
         weights_initializer=tf.contrib.layers.xavier_initializer(),

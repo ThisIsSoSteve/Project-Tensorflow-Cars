@@ -60,10 +60,7 @@ def raw_to_array(raw_save_path):
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
 
-        training_data_record = []
-
         #Get labels
-        label = []
         project_cars_state = None
         controller_state = None
 
@@ -71,31 +68,14 @@ def raw_to_array(raw_save_path):
             project_cars_state = pickle.load(input)
             controller_state = pickle.load(input)
 
-        throttle = controller_state['right_trigger'] #0 - 255
-        brakes = controller_state['left_trigger'] #0 - 255
-        steering = controller_state['thumb_lx'] #-32768 - 32767
-
-        if throttle == 0 and brakes ==0 and steering == 0:
-            print(filename, 'nothing happening')
-            continue
-
-        steering_left = 0
-        steering_right = 0
-
-        if steering < 0:
-            steering_left = np.absolute(steering)
-            steering_right = 0
-        else:
-            steering_right = steering
-            steering_left = 0
-
         #convert image
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
         gray_image = cv2.resize(gray_image, (128, 72), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         gray_image = gray_image.reshape(72, 128, 1)
 
-        label = np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
+        label = get_throttle_brakes_steering_label(controller_state)
+        #label = get_is_car_on_track_label(project_cars_state)
 
         training_data_array.append([gray_image, label])
         training_data_array.append(mirror_data(gray_image, label))
@@ -106,3 +86,29 @@ def raw_to_array(raw_save_path):
    
     print('total data records', len(training_data_array)) 
     return training_data_array
+
+def get_throttle_brakes_steering_label(controller_state):
+    throttle = controller_state['right_trigger'] #0 - 255
+    brakes = controller_state['left_trigger'] #0 - 255
+    steering = controller_state['thumb_lx'] #-32768 - 32767
+
+    steering_left = 0
+    steering_right = 0
+
+    if steering < 0:
+        steering_left = np.absolute(steering)
+        steering_right = 0
+    else:
+        steering_right = steering
+        steering_left = 0
+
+    return np.float16([throttle / 255, brakes / 255, steering_left / 32768, steering_right / 32767]) #throttle, brakes, left, right
+
+def get_is_car_on_track_label(project_cars_state):
+    if project_cars_state.mTerrain[0] > 4 or project_cars_state.mTerrain[1] > 4 or project_cars_state.mTerrain[2] > 4 or project_cars_state.mTerrain[3] > 4:
+        return 1
+    else:
+        return 0 
+
+    #print('[{}][{}]'.format(game.mTerrain[0],game.mTerrain[1]))
+    #print('[{}][{}]'.format(game.mTerrain[2],game.mTerrain[3]))
