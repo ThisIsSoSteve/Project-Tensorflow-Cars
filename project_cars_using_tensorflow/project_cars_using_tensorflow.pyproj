@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>32e04200-efa7-47ec-8907-fd2385d08921</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>main.py</StartupFile>
+    <StartupFile>detecting_if_off_ the_track\main.py</StartupFile>
     <SearchPath>..\game_recorder\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -38,6 +38,18 @@
     <Compile Include="data\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="detecting_if_off_ the_track\main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="detecting_if_off_ the_track\model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="detecting_if_off_ the_track\train.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="detecting_if_off_ the_track\use.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="main.py">
       <SubType>Code</SubType>
     </Compile>
@@ -65,6 +77,7 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="common\" />
+    <Folder Include="detecting_if_off_ the_track\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

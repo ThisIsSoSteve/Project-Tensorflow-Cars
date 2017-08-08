@@ -9,12 +9,10 @@ from random import shuffle
 from math import ceil
 from data import data_transform
 
-#NOT USED
-
-def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
+def convert_raw_to_file(raw_save_path, training_save_path, filename, shuffle):
     print('Starting')
      #Setup
-    path_training = training_save_path + '/training.h5' 
+    path_training = training_save_path + '/' + filename +'.h5' 
     if os.path.exists(path_training):
         os.remove(path_training)
 
@@ -32,28 +30,28 @@ def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
 
     training_data_array = np.array(training_data_array[percent_of_test_data:])
 
-    raw_to_HDF5(training_save_path, training_data_array, validation_data_array)
+    raw_to_HDF5(path_training, training_data_array, validation_data_array)
         
-
     print('Complete')
 
-def raw_to_HDF5(training_save_path, training_data_array, validation_data_array):
+def raw_to_HDF5(path_training, training_data_array, validation_data_array):
 
     print('creating HDF5 file')
 
     #PyTable Setup for training data
-    path_training = training_save_path + '/training.h5'
+    #path_training = training_save_path + '/training.h5'
 
     hdf5_file = open_file(path_training, mode = "w")
 
     img_dtype = Float16Atom()
     data_shape = (0, 72, 128, 1)
+    output_shape = (0,2)
 
     training_images_storage = hdf5_file.create_earray(hdf5_file.root, 'training_images', img_dtype, shape=data_shape, expectedrows=len(training_data_array))
     validation_images_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_images', img_dtype, shape=data_shape, expectedrows=len(validation_data_array))
 
-    training_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'training_labels', Float16Atom(), shape=(0,4), expectedrows=len(training_data_array))
-    validation_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_labels', Float16Atom(), shape=(0,4), expectedrows=len(validation_data_array))
+    training_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'training_labels', Float16Atom(), shape=output_shape, expectedrows=len(training_data_array))
+    validation_labels_storage = hdf5_file.create_earray(hdf5_file.root, 'validation_labels', Float16Atom(), shape=output_shape, expectedrows=len(validation_data_array))
 
     for data in tqdm(training_data_array):
         training_images_storage.append(data[0][None])

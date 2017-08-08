@@ -40,12 +40,14 @@ def mirror_data(image, label):
 
     image = np.fliplr(image)
 
-    choices = np.array([label[0], label[1], label[3], label[2]])
+    #choices = np.array([label[0], label[1], label[3], label[2]])
 
     #cv2.imshow("image", image);
     #cv2.waitKey();
     
-    return np.array([image, choices])
+    #return np.array([image, choices])
+    return np.array([image, label])
+
 
 def raw_to_array(raw_save_path):
     print('getting raw data')
@@ -74,8 +76,8 @@ def raw_to_array(raw_save_path):
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         gray_image = gray_image.reshape(72, 128, 1)
 
-        label = get_throttle_brakes_steering_label(controller_state)
-        #label = get_is_car_on_track_label(project_cars_state)
+        #label = get_throttle_brakes_steering_label(controller_state)
+        label = get_is_car_on_track_label(project_cars_state)
 
         training_data_array.append([gray_image, label])
         training_data_array.append(mirror_data(gray_image, label))
@@ -106,9 +108,9 @@ def get_throttle_brakes_steering_label(controller_state):
 
 def get_is_car_on_track_label(project_cars_state):
     if project_cars_state.mTerrain[0] > 4 or project_cars_state.mTerrain[1] > 4 or project_cars_state.mTerrain[2] > 4 or project_cars_state.mTerrain[3] > 4:
-        return 1
+        return np.float16([1, 0])
     else:
-        return 0 
+        return np.float16([0, 1])
 
     #print('[{}][{}]'.format(game.mTerrain[0],game.mTerrain[1]))
     #print('[{}][{}]'.format(game.mTerrain[2],game.mTerrain[3]))
