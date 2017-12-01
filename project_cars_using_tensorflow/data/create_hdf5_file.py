@@ -9,6 +9,10 @@ from random import shuffle
 from math import ceil
 from data import data_transform
 
+image_width = 640
+image_height = 360
+
+
 def convert_raw_to_file(raw_save_path, training_save_path, filename, shuffle):
     print('Starting')
      #Setup
@@ -19,7 +23,7 @@ def convert_raw_to_file(raw_save_path, training_save_path, filename, shuffle):
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
 
-    training_data_array = data_transform.raw_to_array(raw_save_path)
+    training_data_array = data_transform.raw_to_array(raw_save_path, image_height, image_width)
 
     if shuffle:
         np.random.shuffle(training_data_array)
@@ -44,7 +48,7 @@ def raw_to_HDF5(path_training, training_data_array, validation_data_array):
     hdf5_file = open_file(path_training, mode = "w")
 
     img_dtype = Float16Atom()
-    data_shape = (0, 72, 128, 1)
+    data_shape = (0, image_height, image_width, 1)
     output_shape = (0,2)
 
     training_images_storage = hdf5_file.create_earray(hdf5_file.root, 'training_images', img_dtype, shape=data_shape, expectedrows=len(training_data_array))

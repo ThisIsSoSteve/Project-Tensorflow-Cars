@@ -17,12 +17,12 @@ raw_data_save_path = 'F:/Project_Cars_Data/Raw/OnOffTrack'
 training_data_save_path = 'F:/Project_Cars_Data/Training'
 
 if use_mode == Mode.Train:
-    #number, epochs, learning_rate
-    train.train_model(20, 4000, 0.001, training_data_save_path, checkpoint_save_path, '')#21500
+    #epochs, batch size, learning_rate
+    train.train_model(1000, 2000, 0.001, training_data_save_path, checkpoint_save_path, '')#21500
     #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, '')
 
 if use_mode == Mode.Restore_and_Train:
-    #number, epochs, learning_rate
+    #epochs, batch size, learning_rate
     train.train_model(100000, 100, 0.0001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
     #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
@@ -38,5 +38,5 @@ if use_mode == Mode.Create_Training_Data:
     #data_transform.raw_to_HDF5(raw_data_save_path, training_data_save_path)
     #data_transform.convert_raw_to_file(raw_data_save_path, training_data_save_path, True)
     #create_hdf5_file.convert_raw_to_file(raw_data_save_path, training_data_save_path, 'training', False)
-    create_hdf5_file.convert_raw_to_file(raw_data_save_path, training_data_save_path, 'on_track_training', True)
+    create_hdf5_file.convert_raw_to_file(raw_data_save_path, training_data_save_path, 'on_track_training_640x360', True)
 

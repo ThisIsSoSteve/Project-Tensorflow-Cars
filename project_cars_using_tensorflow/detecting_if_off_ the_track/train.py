@@ -8,7 +8,7 @@ import time
 
 def train_model(number_of_epochs, batch_size, learning_rate, training_file_path, checkpoint_file_path, checkpoint_save_path):
 
-    path_training = training_file_path + '/on_track_training.h5'
+    path_training = training_file_path + '/on_track_training_640x360.h5'
 
     global_step = tf.Variable(0, trainable=False)
 
@@ -66,11 +66,11 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
         logs_path = "F:/Project_Cars_Data/Logs/OnTrack"
         # create log writer object
         writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
-        total = 0
+        batch_total = 0
 
         while step < number_of_epochs:
             epoch_loss = 0
-            np.random.shuffle(batches_list)
+            #np.random.shuffle(batches_list)
             
             for number, index in enumerate(batches_list):
                 batch_starting_index = index * batch_size
@@ -83,16 +83,14 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
 
                 epoch_loss += loss_val
                 # write log
-                #print(total)
-                writer.add_summary(summary, total)
+                writer.add_summary(summary, sess.run(global_step))
                 #writer.flush()
-                total += 1
 
-            step += 1
-            sess.run(global_step.assign(step))
+            batch_total += 1
+            step = sess.run(global_step)
             print('Global Step', step, 'Loss', epoch_loss)
 
-            if(step % 10 == 0):
+            if batch_total % 10 == 0:
                 current_accuracy = 0
                 batch_starting_index = 0
                 current_accuracys = []
@@ -108,11 +106,14 @@ def train_model(number_of_epochs, batch_size, learning_rate, training_file_path,
                 
                
                 print('Accuracy %g' % current_accuracy)
-                if current_accuracy > best_accuracy or step % 50 == 0:
+                if current_accuracy > best_accuracy or batch_total % 50 == 0:
                     if current_accuracy > best_accuracy:
                         best_accuracy = current_accuracy
                     saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_accuracy) +'.ckpt', global_step=step)
                     print('Saved CheckPoint', str(current_accuracy) )
 
+                sess.run(global_step.assign(step))
+
     hdf5_file.flush()
     hdf5_file.close()
+    print('Complete')

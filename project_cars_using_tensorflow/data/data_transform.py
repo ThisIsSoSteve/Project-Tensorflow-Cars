@@ -49,7 +49,7 @@ def mirror_data(image, label):
     return np.array([image, label])
 
 
-def raw_to_array(raw_save_path):
+def raw_to_array(raw_save_path, image_height, image_width):
     print('getting raw data')
 
     listing = glob.glob(raw_save_path + '/*.png')
@@ -72,9 +72,9 @@ def raw_to_array(raw_save_path):
 
         #convert image
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR)#cv2.IMREAD_GRAYSCALE
-        gray_image = cv2.resize(gray_image, (128, 72), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
+        gray_image = cv2.resize(gray_image, (image_width, image_height), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
-        gray_image = gray_image.reshape(72, 128, 1)
+        gray_image = gray_image.reshape(image_height, image_width, 1)
 
         #label = get_throttle_brakes_steering_label(controller_state)
         label = get_is_car_on_track_label(project_cars_state)
