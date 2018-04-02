@@ -102,8 +102,8 @@ def read_test():
 
         print(images[0].shape)
         img = np.array(images[0])
-        cv2.imshow("image", img);
-        cv2.waitKey();
+        cv2.imshow("image", img)
+        cv2.waitKey()
     
     #http://www.pytables.org/usersguide/libref/structured_storage.html
     #https://stackoverflow.com/questions/21039772/pytables-read-random-subset

@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import BasicConvLSTMCell
 
 #image size 128,72
 image_width = 128
@@ -39,11 +38,11 @@ def myModel(X, p_keep_hidden, batch_size):
         biases_initializer=tf.constant_initializer(0.1))
 
 
-    with tf.variable_scope('conv2_lstm2', initializer = tf.constant_initializer(0.1)):#tf.random_uniform_initializer(-.01, 0.1)):
-      cell = BasicConvLSTMCell.BasicConvLSTMCell([12,22], [2,2], 8, activation=tf.nn.elu)
-      #if hidden is None:
-      hidden = cell.zero_state(batch_size, tf.int32) 
-      convLstm1, hidden = cell(conv2, hidden)
+    # with tf.variable_scope('conv2_lstm2', initializer = tf.constant_initializer(0.1)):#tf.random_uniform_initializer(-.01, 0.1)):
+    #   cell = BasicConvLSTMCell.BasicConvLSTMCell([12,22], [2,2], 8, activation=tf.nn.elu)
+    #   #if hidden is None:
+    #   hidden = cell.zero_state(batch_size, tf.int32) 
+    #   convLstm1, hidden = cell(conv2, hidden)
 
     #conv3 = tf.contrib.layers.convolution2d(
     #    inputs=conv2,

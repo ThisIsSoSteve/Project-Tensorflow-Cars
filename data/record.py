@@ -1,4 +1,4 @@
-import carseour
+import pypcars2api as pcars
 import pyxinput
 
 from common import grabber
@@ -12,6 +12,8 @@ from common import countdown
 import numpy as np
 import os
 import pickle
+
+#seems to be problem with pylint thinking cv2 has no Members 
 
 
 def Start(capture_rate, root_save_folder):
@@ -40,7 +42,7 @@ def Start(capture_rate, root_save_folder):
     handle = ctypes.windll.user32.GetForegroundWindow()
     grabber1 = grabber.Grabber(window=handle)
 
-    project_cars_state = carseour.live()
+    project_cars_state = pcars.live()
     #game = carseour.snapshot()
     controller_state = pyxinput.rController(1)
 
@@ -77,17 +79,19 @@ def Start(capture_rate, root_save_folder):
                         'thumb_ly': read.thumb_ly, 
                         'thumb_rx': read.thumb_rx, 
                         'thumb_ry': read.thumb_ry}
-                     
-            pic = cv2.resize(pic, (640,360))
+
+            pic = cv2.resize(pic,[640,360]) #cv.resize(pic, (640,360))
+            
             cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
             with open(folder_name + '/' + save_file_name + '-data.pkl', 'wb') as output:
                 pickle.dump(project_cars_state, output, pickle.HIGHEST_PROTOCOL)
                 pickle.dump(controls, output, pickle.HIGHEST_PROTOCOL)
 
-        
+         
             #np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state, game.mSpeed])
             #gray_image = None
             #pic = None
+
 
             print('Save Complete -', save_file_name)
         else:

@@ -8,7 +8,7 @@ from common import grabber
 import ctypes
 import cv2
 import virtual_xbox_control as vc
-import carseour
+import pypcars2api as pcars
 
 #import matplotlib.pyplot as plt
 #import matplotlib.image as mpimg
@@ -33,7 +33,7 @@ def use_model(checkpoint_save_path):
         sess.run(tf.global_variables_initializer())
         saver.restore(sess, checkpoint_save_path)
         pic = None
-        game = carseour.live()
+        game = pcars.live()
 
         while True:
             
@@ -67,4 +67,4 @@ def use_model(checkpoint_save_path):
             elif game_running:
                 controller.control_car(0, 0, 0, 0)
                 print('Paused')
-                game_running = False;
+                game_running = False
