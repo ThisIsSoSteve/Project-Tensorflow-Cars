@@ -20,7 +20,7 @@ def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
 
-    training_data_array = raw_to_array(raw_save_path)
+    training_data_array = raw_to_array(raw_save_path, 128, 72)
 
     if shuffle:
         np.random.shuffle(training_data_array)
@@ -80,7 +80,7 @@ def raw_to_array(raw_save_path, image_height, image_width):
         label = get_is_car_on_track_label(project_cars_state)
 
         training_data_array.append([gray_image, label])
-        training_data_array.append(mirror_data(gray_image, label))
+        #training_data_array.append(mirror_data(gray_image, label))
         #if current > 1000:
         #    break
         #current += 1

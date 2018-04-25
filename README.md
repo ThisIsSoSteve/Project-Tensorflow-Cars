@@ -11,12 +11,10 @@ Visual Studio Code https://code.visualstudio.com/
 
 Python 3.6.5 64bit
 
-Python Tools https://github.com/Microsoft/PTVS/releases
-
-Project Cars (game) http://www.projectcarsgame.com/overview.html?lang=en
+Project Cars 2 (game) https://www.projectcarsgame.com/
 
 Carseour used for "Project Cars" (not used any more)
-https://github.com/matslindh/carseour
+pip install git+git://github.com/matslindh/carseour
 
 pypcars2api used for "Project Cars 2" (based on Carseour)
 pip install git+git://github.com/marcelomanzo/pypcars2api.git
@@ -38,3 +36,5 @@ pip install tqdm
 
 
 
+https://github.com/mhammond/pywin32
+pip install pywin32

@@ -5,6 +5,7 @@ from ctypes.wintypes import BOOL, HWND, RECT, HDC, HBITMAP, HGDIOBJ, DWORD, LONG
 import numpy as np
 
 SRCCOPY = 0x00CC0020
+CAPTUREBLT = 0x40000000 
 DIB_RGB_COLORS = 0
 BI_RGB = 0
 
@@ -112,10 +113,13 @@ class Grabber(object):
         return output
 
 
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #    import cv2
 #    import ctypes
 #    import time
+#    from datetime import datetime
+
+#    folder_name = 'F:/Project_Cars_Data/Raw2'
 
 #    time.sleep(5)
 #    #from PIL import ImageGrab
@@ -123,16 +127,22 @@ class Grabber(object):
 #    handle = ctypes.windll.user32.GetForegroundWindow()
 #    print(handle)
 #    grabber = Grabber(window=handle)
-   
-#    pic = None
+
 #    for i in range(10):
-#        pic = grabber.grab(pic)
-#        gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-#        gray_image = cv2.resize(gray_image, (160,120))
-#        cv2.imwrite('data/a{}.png'.format(i), gray_image)
-#        gray_image = None
-#        pic = None
-#        time.sleep(0.2)
+       
+       
+#        pic = grabber.grab()
+
+#        #gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
+#        #gray_image = cv2.resize(gray_image, (160,120))
+#        save_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S-%f')
+#        cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
+#        #gray_image = None
+#        #pic = None
+#        #time.sleep(0.2)
+#        #cv2.imshow("image", pic)
+#        #cv2.waitKey()
+#        #time.sleep(3)
 
 #    #s = time.clock()
 #    #for i in range(10):

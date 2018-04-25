@@ -8,7 +8,7 @@ from common import grabber
 import ctypes
 import cv2
 import virtual_xbox_control as vc
-import pypcars2api as pcars
+import carseour as pcars
 
 #import matplotlib.pyplot as plt
 #import matplotlib.image as mpimg
