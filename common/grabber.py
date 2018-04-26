@@ -1,7 +1,8 @@
 # A port of https://github.com/phoboslab/jsmpeg-vnc/blob/master/source/grabber.c to python
 # License information (GPLv3) is here https://github.com/phoboslab/jsmpeg-vnc/blob/master/README.md
-from ctypes import Structure, c_int, POINTER, WINFUNCTYPE, windll, WinError, sizeof
-from ctypes.wintypes import BOOL, HWND, RECT, HDC, HBITMAP, HGDIOBJ, DWORD, LONG, WORD, UINT, LPVOID
+from ctypes import Structure, c_int, POINTER, WINFUNCTYPE, windll, WinError, sizeof, c_wchar_p
+from ctypes.wintypes import BOOL, HWND, RECT, HDC, HBITMAP, HGDIOBJ, DWORD, LONG, WORD, UINT, LPVOID, LPSTR
+
 import numpy as np
 
 SRCCOPY = 0x00CC0020
@@ -53,24 +54,39 @@ SelectObject = quick_win_define('gdi32.SelectObject', HGDIOBJ, HDC, HGDIOBJ)
 BitBlt = quick_win_define('gdi32.BitBlt', BOOL, HDC, c_int, c_int, c_int, c_int, HDC, c_int, c_int, DWORD)
 GetDIBits = quick_win_define('gdi32.GetDIBits', c_int, HDC, HBITMAP, UINT, UINT, LPVOID, POINTER(BITMAPINFOHEADER), UINT)
 GetDesktopWindow = quick_win_define('user32.GetDesktopWindow', HWND)
+GetWindowRect = quick_win_define('user32.GetWindowRect', BOOL, HWND, POINTER(RECT), params=(1, 2))
+FindWindow = quick_win_define('user32.FindWindowW', HWND, c_wchar_p, c_wchar_p)
 
 
 class Grabber(object):
-    def __init__(self, window=None, with_alpha=False, bbox=None):
-        window = window or GetDesktopWindow()
+    def __init__(self, window_title, with_alpha=False, bbox=None):
+        #window = window or GetDesktopWindow()
+        hwnd = FindWindow(None, window_title)
+
+        print(hwnd)
+        window = GetDesktopWindow()
         self.window = window
-        rect = GetClientRect(window)
+
+        #rect = GetClientRect(window)
+        rect = GetWindowRect(hwnd)
+
         self.width = rect.right - rect.left
         self.height = rect.bottom - rect.top
-        if bbox:
-            bbox = [bbox[0], bbox[1], bbox[2] - bbox[0], bbox[3] - bbox[1]]
-            if not bbox[2] or not bbox[3]:
-                bbox[2] = self.width - bbox[0]
-                bbox[3] = self.height - bbox[1]
-            self.x, self.y, self.width, self.height = bbox
-        else:
-            self.x = 0
-            self.y = 0
+
+        self.x = rect.left
+        self.y = rect.top
+
+        print('w:{} h:{}'.format(self.width, self.height))
+
+        # if bbox:
+        #     bbox = [bbox[0], bbox[1], bbox[2] - bbox[0], bbox[3] - bbox[1]]
+        #     if not bbox[2] or not bbox[3]:
+        #         bbox[2] = self.width - bbox[0]
+        #         bbox[3] = self.height - bbox[1]
+        #     self.x, self.y, self.width, self.height = bbox
+        # else:
+        #     self.x = 0
+        #     self.y = 0
         self.windowDC = GetDC(window)
         self.memoryDC = CreateCompatibleDC(self.windowDC)
         self.bitmap = CreateCompatibleBitmap(self.windowDC, self.width, self.height)
