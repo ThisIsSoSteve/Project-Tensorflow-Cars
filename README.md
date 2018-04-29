@@ -11,7 +11,7 @@ Visual Studio Code https://code.visualstudio.com/
 
 Python 3.6.5 64bit
 
-Project Cars 2 (game) https://www.projectcarsgame.com/
+Project Cars (game) https://www.projectcarsgame.com/
 
 Carseour used for "Project Cars" (not used any more)
 pip install git+git://github.com/matslindh/carseour

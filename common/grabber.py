@@ -60,21 +60,21 @@ FindWindow = quick_win_define('user32.FindWindowW', HWND, c_wchar_p, c_wchar_p)
 
 class Grabber(object):
     def __init__(self, window_title, with_alpha=False, bbox=None):
-        #window = window or GetDesktopWindow()
         hwnd = FindWindow(None, window_title)
 
         print(hwnd)
         window = GetDesktopWindow()
         self.window = window
 
-        #rect = GetClientRect(window)
         rect = GetWindowRect(hwnd)
 
-        self.width = rect.right - rect.left
-        self.height = rect.bottom - rect.top
+        #for project cars settings #note in game resolution
+        self.width = 1920
+        self.height = 1080
 
-        self.x = rect.left
-        self.y = rect.top
+        self.x = rect.left + 8
+        self.y = rect.top + 31
+
 
         print('w:{} h:{}'.format(self.width, self.height))
 

@@ -13,12 +13,6 @@ import numpy as np
 import os
 import pickle
 
-#seems to be problem with pylint thinking cv2 has no Members 
-import win32gui, win32ui, win32con, win32api
-
-
-
-
 def Start(capture_rate, root_save_folder):
     start_up_complete = False
     #capture_rate = 0.1
@@ -82,46 +76,14 @@ def Start(capture_rate, root_save_folder):
                         'thumb_ry': read.thumb_ry}
 
 
-            # gtawin = win32gui.FindWindow(None, 'Project CARS™')
-            # if not gtawin:
-            #     raise Exception('window title not found')
-
-            # left, top, x2, y2 = win32gui.GetWindowRect(gtawin)
-            # #width = x2 - left
-            # #height = y2 - top
-            # width = 1920
-            # height = 1080
-
-            # #projects windows adjustments
-            # left = left+ 8
-            # top = top + 31
-
-
-
-
-            # print('w:{} h:{}'.format(width, height))
-
-
-            # hwin = win32gui.GetDesktopWindow()
-            # # width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
-            # # height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
-            # # left = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
-            # # top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
-            # hwindc = win32gui.GetWindowDC(hwin)
-            # srcdc = win32ui.CreateDCFromHandle(hwindc)
-            # memdc = srcdc.CreateCompatibleDC()
-            # bmp = win32ui.CreateBitmap()
-            # bmp.CreateCompatibleBitmap(srcdc, width, height)
-            # memdc.SelectObject(bmp)
-            # memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
-            # bmp.SaveBitmapFile(memdc, folder_name + '/' + save_file_name + '-image.bmp')
 
             pic = grabber1.grab()
-            # pic = cv2.resize(pic, (640,360))
-            cv2.imshow("image", pic)
-            cv2.waitKey()
+            gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
+            gray_image = cv2.resize(gray_image, (32,18))#640,360
+            #cv2.imshow("image", pic)
+            #cv2.waitKey()
             
-            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', pic)
+            cv2.imwrite(folder_name + '/' + save_file_name + '-image.png', gray_image)
             with open(folder_name + '/' + save_file_name + '-data.pkl', 'wb') as output:
                 pickle.dump(project_cars_state, output, pickle.HIGHEST_PROTOCOL)
                 pickle.dump(controls, output, pickle.HIGHEST_PROTOCOL)
@@ -130,11 +92,7 @@ def Start(capture_rate, root_save_folder):
             #np.save(folder_name + '/data-' + save_date + '.npy', [gray_image, game_state, game.mSpeed])
             #gray_image = None
             #pic = None
-
-            #srcdc.DeleteDC()
-            #memdc.DeleteDC()
-            #win32gui.ReleaseDC(hwin, hwindc)
-            #win32gui.DeleteObject(bmp.GetHandle())
+            
 
 
             print('Save Complete -', save_file_name)
