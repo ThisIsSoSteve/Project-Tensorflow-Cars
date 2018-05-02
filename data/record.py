@@ -79,7 +79,7 @@ def Start(capture_rate, root_save_folder):
 
             pic = grabber1.grab()
             gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-            gray_image = cv2.resize(gray_image, (32,18))#640,360
+            gray_image = cv2.resize(gray_image, (640,360))#32,18
             #cv2.imshow("image", pic)
             #cv2.waitKey()
             

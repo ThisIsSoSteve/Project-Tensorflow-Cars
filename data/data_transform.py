@@ -114,3 +114,42 @@ def get_is_car_on_track_label(project_cars_state):
 
     #print('[{}][{}]'.format(game.mTerrain[0],game.mTerrain[1]))
     #print('[{}][{}]'.format(game.mTerrain[2],game.mTerrain[3]))
+
+
+def get_steering_features_labels(raw_save_path, path_training, image_height, image_width):
+
+    listing = glob.glob(raw_save_path + '/*.png')
+    training_data_array = []
+
+    previous_steering_state = None
+    buffer = 100
+
+    for filename in tqdm(listing):
+
+        filename = filename.replace('\\','/')
+        filename = filename.replace('-image.png','')
+
+        with open(filename + '-data.pkl', 'rb') as input:
+            #project_cars_state = pickle.load(input)
+            controller_state = pickle.load(input)
+
+        label = np.zeros([3])
+
+        current_steering_state = controller_state['thumb_lx']    
+        if previous_steering_state != None:
+            if previous_steering_state > current_steering_state:
+                label = np.array([0.0, 0.0, 1.0])#right
+            else:
+                label = np.array([0.0, 1.0, 0.0])#left
+
+            if (previous_steering_state) + buffer > current_steering_state or (previous_steering_state) - buffer < current_steering_state:
+                label = np.array([0.0, 0.0, 0.0])
+        
+        gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
+        gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        gray_image = gray_image.reshape(image_height, image_width, 1)
+        training_data_array.append([gray_image, label])
+
+        previous_steering_state = current_steering_state
+
+        np.save(path_training, training_data_array)
