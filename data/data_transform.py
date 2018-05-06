@@ -120,36 +120,58 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
     listing = glob.glob(raw_save_path + '/*.png')
     training_data_array = []
+    test_data_array = []
 
     previous_steering_state = None
     buffer = 100
+    limit = 10000
+    test_set_limit = limit * 0.3
+    currentcount = 0 
 
     for filename in tqdm(listing):
+
+        currentcount += 1
 
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
 
         with open(filename + '-data.pkl', 'rb') as input:
-            #project_cars_state = pickle.load(input)
+            project_cars_state = pickle.load(input)
             controller_state = pickle.load(input)
+
+        #only do Watkins Glen International track data
+        current_track = str(project_cars_state.mTrackLocation).replace("'","").replace("b","")
+
+        if(current_track != "Watkins Glen International"):
+            continue
+      
 
         label = np.zeros([3])
 
         current_steering_state = controller_state['thumb_lx']    
         if previous_steering_state != None:
-            if previous_steering_state > current_steering_state:
+            if current_steering_state > previous_steering_state:
                 label = np.array([0.0, 0.0, 1.0])#right
             else:
                 label = np.array([0.0, 1.0, 0.0])#left
 
-            if (previous_steering_state) + buffer > current_steering_state or (previous_steering_state) - buffer < current_steering_state:
-                label = np.array([0.0, 0.0, 0.0])
+            if previous_steering_state < (current_steering_state + buffer) or previous_steering_state > (current_steering_state - buffer):
+                label = np.array([0.1, 0.0, 0.0])#no change
         
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
+        gray_image = cv2.resize(gray_image, (image_width, image_height), interpolation=cv2.INTER_CUBIC)
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         gray_image = gray_image.reshape(image_height, image_width, 1)
-        training_data_array.append([gray_image, label])
+        
 
         previous_steering_state = current_steering_state
+        if currentcount >= limit:
+            test_data_array.append([gray_image, label])
+        else:
+            training_data_array.append([gray_image, label])
 
-        np.save(path_training, training_data_array)
+        if currentcount >= limit + test_set_limit:
+            break
+
+    np.save(path_training + '/training.npy' , training_data_array)
+    np.save(path_training + '/training_validation.npy' , test_data_array)

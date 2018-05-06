@@ -2,19 +2,19 @@ import tensorflow as tf
 import numpy as np
 
 #image size 128,72
-image_width = 128
-image_height = 72
+image_width = 32
+image_height = 18
 
-output_size = 4
+output_size = 3
 
 x = tf.placeholder(tf.float32, [None, image_height, image_width, 1]) #input image data
 y = tf.placeholder(tf.float32, [None, output_size]) #labels
 #z = tf.placeholder(tf.float32, [None, 1]) #speed 
 
 p_keep_hidden = tf.placeholder(tf.float32)
-batch_size = tf.placeholder(tf.int32)
+#batch_size = tf.placeholder(tf.int32)
 
-def myModel(X, p_keep_hidden, batch_size):
+def myModel(X, p_keep_hidden):
 
     conv1 = tf.contrib.layers.convolution2d(
         inputs=X,
@@ -22,9 +22,9 @@ def myModel(X, p_keep_hidden, batch_size):
         stride=[3, 3],
         kernel_size=[6, 6],
         data_format="NHWC",
-        activation_fn = tf.nn.elu,
+        activation_fn = tf.nn.relu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-        biases_initializer=tf.constant_initializer(0.1))
+        biases_initializer=tf.constant_initializer(0.01))
     
 
     conv2 = tf.contrib.layers.convolution2d(
@@ -33,9 +33,9 @@ def myModel(X, p_keep_hidden, batch_size):
         stride=[2, 2],
         kernel_size=[3, 3],
         data_format="NHWC",
-        activation_fn = tf.nn.elu,
+        activation_fn = tf.nn.relu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-        biases_initializer=tf.constant_initializer(0.1))
+        biases_initializer=tf.constant_initializer(0.01))
 
 
     # with tf.variable_scope('conv2_lstm2', initializer = tf.constant_initializer(0.1)):#tf.random_uniform_initializer(-.01, 0.1)):
@@ -111,9 +111,9 @@ def myModel(X, p_keep_hidden, batch_size):
     fcl1 = tf.contrib.layers.fully_connected(
         inputs = conv2_flat, 
         num_outputs = 128, 
-        activation_fn=tf.nn.elu,
+        activation_fn=tf.nn.relu,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.1)
+        biases_initializer=tf.constant_initializer(0.01)
         )
 
     #l4 = tf.contrib.layers.batch_norm(l4, center=True, scale=True, is_training=p_is_training, activation_fn = tf.nn.relu)
@@ -123,9 +123,9 @@ def myModel(X, p_keep_hidden, batch_size):
     fcl2 = tf.contrib.layers.fully_connected(
         inputs = fcl1, 
         num_outputs = 32, 
-        activation_fn=tf.nn.elu,
+        activation_fn=tf.nn.relu,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.1)
+        biases_initializer=tf.constant_initializer(0.01)
         )
 
     #fcl2 = tf.nn.dropout(fcl2, p_keep_hidden)
@@ -153,7 +153,7 @@ def myModel(X, p_keep_hidden, batch_size):
         num_outputs = output_size, 
         activation_fn=None,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.1)
+        biases_initializer=tf.constant_initializer(0.01)
         )
 
     return output
