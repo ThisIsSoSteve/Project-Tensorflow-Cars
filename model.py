@@ -19,23 +19,23 @@ def myModel(X, p_keep_hidden):
     conv1 = tf.contrib.layers.convolution2d(
         inputs=X,
         num_outputs = 8,
-        stride=[3, 3],
+        stride=[2, 2],
         kernel_size=[6, 6],
         data_format="NHWC",
-        activation_fn = tf.nn.relu,
+        activation_fn = tf.nn.elu,
         weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-        biases_initializer=tf.constant_initializer(0.01))
+        biases_initializer=tf.constant_initializer(0.1))
     
 
-    conv2 = tf.contrib.layers.convolution2d(
-        inputs=conv1,
-        num_outputs = 8,
-        stride=[2, 2],
-        kernel_size=[3, 3],
-        data_format="NHWC",
-        activation_fn = tf.nn.relu,
-        weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-        biases_initializer=tf.constant_initializer(0.01))
+    # conv2 = tf.contrib.layers.convolution2d(
+    #     inputs=conv1,
+    #     num_outputs = 16,
+    #     stride=[1, 1],
+    #     kernel_size=[2, 2],
+    #     data_format="NHWC",
+    #     activation_fn = tf.nn.relu,
+    #     weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+    #     biases_initializer=tf.constant_initializer(0.1))
 
 
     # with tf.variable_scope('conv2_lstm2', initializer = tf.constant_initializer(0.1)):#tf.random_uniform_initializer(-.01, 0.1)):
@@ -44,10 +44,10 @@ def myModel(X, p_keep_hidden):
     #   hidden = cell.zero_state(batch_size, tf.int32) 
     #   convLstm1, hidden = cell(conv2, hidden)
 
-    #conv3 = tf.contrib.layers.convolution2d(
+    # conv3 = tf.contrib.layers.convolution2d(
     #    inputs=conv2,
     #    num_outputs = 8,
-    #    stride=[3, 3],
+    #    stride=[1, 1],
     #    kernel_size=[2, 2],
     #    data_format="NHWC",
     #    activation_fn = tf.nn.elu,
@@ -103,30 +103,30 @@ def myModel(X, p_keep_hidden):
     ##conv4 = tf.contrib.layers.batch_norm(conv4, center=True, scale=True, is_training=p_is_training, activation_fn = tf.nn.relu)
 
     #fully connected #input = 128x72 -> l1 = 64x36 -> l2 = 32x18 -> l3 = 16x9
-    conv2_flat = tf.contrib.layers.flatten(conv2)
+    conv2_flat = tf.contrib.layers.flatten(conv1)
 
     #l4 = tf.concat([l4, Z], 1)
     #l4 = tf.reshape(l4, [-1, tf.size(l4[0])])
 
     fcl1 = tf.contrib.layers.fully_connected(
         inputs = conv2_flat, 
-        num_outputs = 128, 
-        activation_fn=tf.nn.relu,
+        num_outputs = 512, 
+        activation_fn=tf.nn.elu,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.01)
+        biases_initializer=tf.constant_initializer(0.1)
         )
 
     #l4 = tf.contrib.layers.batch_norm(l4, center=True, scale=True, is_training=p_is_training, activation_fn = tf.nn.relu)
 
     #fcl1 = tf.nn.dropout(fcl1, p_keep_hidden)
 
-    fcl2 = tf.contrib.layers.fully_connected(
-        inputs = fcl1, 
-        num_outputs = 32, 
-        activation_fn=tf.nn.relu,
-        weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.01)
-        )
+    # fcl2 = tf.contrib.layers.fully_connected(
+    #     inputs = fcl1, 
+    #     num_outputs = 128, 
+    #     activation_fn=tf.nn.relu,
+    #     weights_initializer=tf.contrib.layers.xavier_initializer(),
+    #     biases_initializer=tf.constant_initializer(0.1)
+    #     )
 
     #fcl2 = tf.nn.dropout(fcl2, p_keep_hidden)
 
@@ -149,11 +149,11 @@ def myModel(X, p_keep_hidden):
     #fcl4 = tf.nn.dropout(fcl4, p_keep_hidden)
 
     output = tf.contrib.layers.fully_connected(
-        inputs = fcl2, 
+        inputs = fcl1, 
         num_outputs = output_size, 
         activation_fn=None,
         weights_initializer=tf.contrib.layers.xavier_initializer(),
-        biases_initializer=tf.constant_initializer(0.01)
+        biases_initializer=tf.constant_initializer(0.1)
         )
 
     return output

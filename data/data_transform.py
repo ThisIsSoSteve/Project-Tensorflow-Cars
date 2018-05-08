@@ -124,7 +124,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
     previous_steering_state = None
     buffer = 100
-    limit = 10000
+    limit = 20000
     test_set_limit = limit * 0.3
     currentcount = 0 
 
@@ -134,6 +134,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
+        #print(filename)
 
         with open(filename + '-data.pkl', 'rb') as input:
             project_cars_state = pickle.load(input)
@@ -155,13 +156,16 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
             else:
                 label = np.array([0.0, 1.0, 0.0])#left
 
-            if previous_steering_state < (current_steering_state + buffer) or previous_steering_state > (current_steering_state - buffer):
-                label = np.array([0.1, 0.0, 0.0])#no change
-        
+            if previous_steering_state < (current_steering_state + buffer) and previous_steering_state > (current_steering_state - buffer):
+                label = np.array([1.0, 0.0, 0.0])#no change
+        else:
+            previous_steering_state = current_steering_state
+            continue
+
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
         gray_image = cv2.resize(gray_image, (image_width, image_height), interpolation=cv2.INTER_CUBIC)
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
-        gray_image = gray_image.reshape(image_height, image_width, 1)
+        #gray_image = gray_image.reshape(image_height, image_width, 1)
         
 
         previous_steering_state = current_steering_state
