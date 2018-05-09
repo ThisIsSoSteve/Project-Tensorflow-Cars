@@ -4,6 +4,8 @@ import cv2
 import glob
 import pickle
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
     print('starting')
@@ -163,9 +165,18 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
             continue
 
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
-        gray_image = cv2.resize(gray_image, (image_width, image_height), interpolation=cv2.INTER_CUBIC)
+
+        # cv2.imshow("image", gray_image)
+        # cv2.waitKey()
+
+        gray_image = cv2.resize(gray_image, (image_height, image_width))
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         #gray_image = gray_image.reshape(image_height, image_width, 1)
+
+        # pic = np.uint8(gray_image * 255.0)
+        # plt.matshow(pic, cmap=plt.cm.gray)
+        # plt.show()
+
         
 
         previous_steering_state = current_steering_state

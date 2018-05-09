@@ -144,8 +144,8 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
                 validation_y.append(np.array(data[1]))
                 #validation_z.append(np.array(data[2]))
                 # print(data[1])
-                # pic = np.uint8(data[0] * 255)
-                # plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
+                #pic = np.uint8(data[0] * 255)
+                #plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
                 # plt.show()
         #validation_x = np.array(validation_x)
             
@@ -166,10 +166,11 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
                 train_y.append(np.array(data[1]))
                 #train_z.append(np.array(data[2])) 
 
-                # print(data[1])
-                # pic = np.uint8(data[0] * 255)
-                # plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
-                # plt.show()
+                #print(data[1])
+                #pic = np.uint8(data[0] * 255)
+                ##plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
+                #plt.matshow(pic, cmap=plt.cm.gray)
+                #plt.show()
 
             
             # print(train_y[5])
@@ -202,6 +203,11 @@ def train_model_with_npy_file(number_of_epochs, batch_size, learning_rate, train
                 #batch_z = np.reshape(batch_z ,(batch_size, 1))
 
                 batch_x = batch_x.reshape((-1, model.image_height, model.image_width, 1))
+
+                # pic = np.uint8(batch_x[0] * 255.0)
+                # plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
+                # plt.show()
+
 
                 #_, loss_val = sess.run([optimizer, cost], feed_dict = {model.x: batch_x, model.y: batch_y, model.z: batch_z, model.p_keep_hidden: 0.8})
                 _, loss_val = sess.run([optimizer, cost], feed_dict = {model.x: batch_x, model.y: batch_y, model.p_keep_hidden: 0.8})

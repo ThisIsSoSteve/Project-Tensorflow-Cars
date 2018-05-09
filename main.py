@@ -8,7 +8,8 @@ from data import record
 from data import data_transform
 #from data import create_hdf5_file
 
-use_mode = Mode.Train 
+use_mode = Mode.Train
+ 
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.795365.ckpt-1200'
