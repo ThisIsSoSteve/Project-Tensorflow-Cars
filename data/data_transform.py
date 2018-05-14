@@ -124,9 +124,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     training_data_array = []
     test_data_array = []
 
-    previous_steering_state = None
-    buffer = 100
-    limit = 20000
+    buffer = 400
+    limit = 10000
     test_set_limit = limit * 0.3
     currentcount = 0 
 
@@ -151,18 +150,21 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         label = np.zeros([3])
 
-        current_steering_state = controller_state['thumb_lx']    
-        if previous_steering_state != None:
-            if current_steering_state > previous_steering_state:
-                label = np.array([0.0, 0.0, 1.0])#right
-            else:
-                label = np.array([0.0, 1.0, 0.0])#left
+        current_steering_state = controller_state['thumb_lx']   
 
-            if previous_steering_state < (current_steering_state + buffer) and previous_steering_state > (current_steering_state - buffer):
-                label = np.array([1.0, 0.0, 0.0])#no change
+        #print(current_steering_state) 
+       
+        if current_steering_state > 0:
+            label = np.array([0.0, 0.0, 1.0])#right
+            #print("right")
+
         else:
-            previous_steering_state = current_steering_state
-            continue
+            label = np.array([0.0, 1.0, 0.0])#left
+            #print("left")
+
+        if current_steering_state < buffer and current_steering_state > -buffer:
+            label = np.array([1.0, 0.0, 0.0])#no input
+            print("no input")
 
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
 
@@ -179,7 +181,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         
 
-        previous_steering_state = current_steering_state
+        #previous_steering_state = current_steering_state
         if currentcount >= limit:
             test_data_array.append([gray_image, label])
         else:
