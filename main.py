@@ -3,10 +3,11 @@ import os
 
 from modes import Mode
 import train
-import use
+
 from data import record
 from data import data_transform
 from train import Train
+from use import Use
 #from data import create_hdf5_file
 
 use_mode = Mode.Train
@@ -32,7 +33,9 @@ if use_mode == Mode.Train:
     #train.train_model(100000, 2000, 0.0001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
     #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
-#if use_mode == Mode.Use:
+if use_mode == Mode.Use:
+    using_model = Use(32, 18, 3)
+    using_model.use_model(checkpoint_use_path)
     #use.use_model(checkpoint_use_path)
 
 if use_mode == Mode.Record:
