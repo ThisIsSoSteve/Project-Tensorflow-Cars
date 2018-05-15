@@ -171,7 +171,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         # cv2.imshow("image", gray_image)
         # cv2.waitKey()
 
-        gray_image = cv2.resize(gray_image, (image_height, image_width))
+        gray_image = cv2.resize(gray_image, (image_width, image_height))
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         #gray_image = gray_image.reshape(image_height, image_width, 1)
 
