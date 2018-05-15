@@ -107,10 +107,7 @@ class Train:
 
     def train_model_with_npy_file(self, number_of_epochs, batch_size, training_file_path, checkpoint_file_path, checkpoint_save_path):
 
-        print('starting')
-        path_training = training_file_path + '/training.npy'
-
-        path_tvalidation = training_file_path + '/training_validation.npy'
+        print('training started')
 
         global_step = tf.Variable(0, trainable=False)
 
