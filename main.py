@@ -6,6 +6,7 @@ import train
 import use
 from data import record
 from data import data_transform
+from train import Train
 #from data import create_hdf5_file
 
 use_mode = Mode.Train
@@ -21,7 +22,10 @@ training_data_save_path = 'F:/Project_Cars_Data/Training'
 if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
     #train.train_model(100000, 4000, 0.01, training_data_save_path, checkpoint_save_path, '')#21500
-    train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
+    training = Train(32, 18, 3, 0.01)
+    training.train_model_with_npy_file(10000, 20000, training_data_save_path, checkpoint_save_path, '')
+
+    #train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
 
 #if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
