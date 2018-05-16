@@ -14,12 +14,14 @@ class Model:
 
     @lazy_property
     def prediction(self):
+
         conv1 = tf.contrib.layers.convolution2d(
             inputs=self.feature,
-            num_outputs = 8,
+            num_outputs = 24,
             stride=[2, 2],
             kernel_size=[6, 6],
-            data_format="NHWC",
+            padding = 'VALID',
+            data_format='NHWC',
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
@@ -27,18 +29,53 @@ class Model:
 
         conv2 = tf.contrib.layers.convolution2d(
             inputs=conv1,
-            num_outputs = 8,
+            num_outputs = 36,
             stride=[2, 2],
-            kernel_size=[3, 3],
+            kernel_size=[5, 5],
+            padding = 'SAME',
             data_format="NHWC",
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
 
-        conv2_flat = tf.contrib.layers.flatten(conv2)
+        conv3 = tf.contrib.layers.convolution2d(
+            inputs=conv2,
+            num_outputs = 48,
+            stride=[2, 2],
+            kernel_size=[5, 5],
+            padding = 'SAME',
+            data_format="NHWC",
+            activation_fn = tf.nn.relu,
+            weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+            biases_initializer=tf.constant_initializer(0.1))
+
+        conv4 = tf.contrib.layers.convolution2d(
+            inputs=conv3,
+            num_outputs = 64,
+            stride=[1, 1],
+            kernel_size=[3, 3],
+            padding = 'SAME',
+            data_format="NHWC",
+            activation_fn = tf.nn.relu,
+            weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+            biases_initializer=tf.constant_initializer(0.1))
+
+        conv5 = tf.contrib.layers.convolution2d(
+            inputs=conv4,
+            num_outputs = 64,
+            stride=[1, 1],
+            kernel_size=[3, 3],
+            padding = 'SAME',
+            data_format="NHWC",
+            activation_fn = tf.nn.relu,
+            weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+            biases_initializer=tf.constant_initializer(0.1))
+
+
+        conv5_flat = tf.contrib.layers.flatten(conv5)
 
         fcl1 = tf.contrib.layers.fully_connected(
-            inputs = conv2_flat, 
+            inputs = conv5_flat, 
             num_outputs = 128, 
             activation_fn = tf.nn.elu,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
@@ -47,14 +84,22 @@ class Model:
 
         fcl2 = tf.contrib.layers.fully_connected(
             inputs = fcl1, 
-            num_outputs = 32, 
+            num_outputs = 64, 
+            activation_fn = tf.nn.relu,
+            weights_initializer=tf.contrib.layers.xavier_initializer(),
+            biases_initializer=tf.constant_initializer(0.1)
+            )
+
+        fcl3 = tf.contrib.layers.fully_connected(
+            inputs = fcl2, 
+            num_outputs = 16, 
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.1)
             )
 
         output = tf.contrib.layers.fully_connected(
-            inputs = fcl2, 
+            inputs = fcl3, 
             num_outputs = 3, 
             activation_fn = None,
             weights_initializer=tf.contrib.layers.xavier_initializer(),

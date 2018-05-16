@@ -171,6 +171,8 @@ class Train:
                 train_x = []
                 train_y = []
                 #train_z = [] #speed
+
+                #print(len(training_data))
                 for data in training_data:#better way?
 
                     train_x.append(np.array(data[0]))

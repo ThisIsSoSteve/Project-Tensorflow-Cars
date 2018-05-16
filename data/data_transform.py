@@ -124,8 +124,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     training_data_array = []
     test_data_array = []
 
-    buffer = 400
-    limit = 10000
+    buffer = 1000
+    limit = 20000
     test_set_limit = limit * 0.3
     currentcount = 0 
 
@@ -164,7 +164,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         if current_steering_state < buffer and current_steering_state > -buffer:
             label = np.array([1.0, 0.0, 0.0])#no input
-            print("no input")
+
 
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
 
