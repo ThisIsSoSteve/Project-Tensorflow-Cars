@@ -100,7 +100,7 @@ class Train:
         self.output_size = output_size
         self.learning_rate = learning_rate
 
-        self.X = tf.placeholder(tf.float32, [None, self.image_height, self.image_width, 1])
+        self.X = tf.placeholder(tf.float16, [None, self.image_height, self.image_width, 1])
         self.Y = tf.placeholder(tf.float32, [None, self.output_size])
         self.model = Model(self.X, self.Y, self.learning_rate)
 

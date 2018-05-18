@@ -173,6 +173,19 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         gray_image = cv2.resize(gray_image, (image_width, image_height))
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+        #cropped width img[y:y+h, x:x+w]
+        cropped_pixels = (image_width - image_height) / 2
+        gray_image = gray_image[image_height, cropped_pixels: cropped_pixels + image_height]
+        #mirror data
+        gray_image_mirror = np.fliplr(gray_image)
+        label_mirror = label
+
+        if label[1] == 1.0:
+            label_mirror = np.array([0.0, 0.0, 1.0])
+        elif label[2] == 1.0:
+            label_mirror = np.array([0.0, 1.0, 0.0])
+
+
         #gray_image = gray_image.reshape(image_height, image_width, 1)
 
         # pic = np.uint8(gray_image * 255.0)
@@ -184,8 +197,10 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         #previous_steering_state = current_steering_state
         if currentcount >= limit:
             test_data_array.append([gray_image, label])
+            test_data_array.append([gray_image_mirror, label_mirror])
         else:
             training_data_array.append([gray_image, label])
+            training_data_array.append([gray_image_mirror, label_mirror])
 
         if currentcount >= limit + test_set_limit:
             break
