@@ -19,7 +19,7 @@ checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_m
 raw_data_save_path = 'F:/Project_Cars_Data/Raw'
 training_data_save_path = 'F:/Project_Cars_Data/Training'
 
-image_width = 32
+image_width = 18
 image_height = 18
 label_size = 3
 
@@ -27,7 +27,7 @@ if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
     #train.train_model(100000, 4000, 0.01, training_data_save_path, checkpoint_save_path, '')#21500
     training = Train(image_height, image_width, label_size, 0.001)
-    training.train_model_with_npy_file(10000, 20000, training_data_save_path, checkpoint_save_path, '')
+    training.train_model_with_npy_file(1000, 5000, training_data_save_path, checkpoint_save_path, '')
 
     #train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
 

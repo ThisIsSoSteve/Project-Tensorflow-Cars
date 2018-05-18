@@ -121,6 +121,8 @@ def get_is_car_on_track_label(project_cars_state):
 def get_steering_features_labels(raw_save_path, path_training, image_height, image_width):
 
     listing = glob.glob(raw_save_path + '/*.png')
+    np.random.shuffle(listing)
+
     training_data_array = []
     test_data_array = []
 
@@ -129,9 +131,10 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     test_set_limit = limit * 0.3
     currentcount = 0 
 
+
     for filename in tqdm(listing):
 
-        currentcount += 1
+        
 
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
@@ -147,7 +150,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         if(current_track != "Watkins Glen International"):
             continue
       
-
+        
         label = np.zeros([3])
 
         current_steering_state = controller_state['thumb_lx']   
@@ -185,7 +188,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         elif label[2] == 1.0:
             label_mirror = np.array([0.0, 1.0, 0.0])
 
-
+        
         #gray_image = gray_image.reshape(image_height, image_width, 1)
 
         # pic = np.uint8(gray_image * 255.0)
@@ -204,6 +207,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         if currentcount >= limit + test_set_limit:
             break
+
+        currentcount += 1
 
     np.save(path_training + '/training.npy' , training_data_array)
     np.save(path_training + '/training_validation.npy' , test_data_array)

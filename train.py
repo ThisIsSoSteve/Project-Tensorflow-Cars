@@ -8,6 +8,7 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from model import Model
+from plot import Plot
 # def train_model(number_of_epochs, batch_size, learning_rate, training_file_path, checkpoint_file_path, checkpoint_save_path):
 
 #     path_training = training_file_path + '/training.h5'
@@ -103,6 +104,9 @@ class Train:
         self.X = tf.placeholder(tf.float16, [None, self.image_height, self.image_width, 1])
         self.Y = tf.placeholder(tf.float32, [None, self.output_size])
         self.model = Model(self.X, self.Y, self.learning_rate)
+
+        self.cost_plot = Plot([], 'Step', 'Cost')
+        self.accuracy_plot = Plot([], 'Step', 'Accuracy')
 
 
     def train_model_with_npy_file(self, number_of_epochs, batch_size, training_file_path, checkpoint_file_path, checkpoint_save_path):
@@ -262,3 +266,9 @@ class Train:
                         best_accuracy = current_accuracy
                         saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_accuracy) +'.ckpt', global_step=step)
                         print('Saved CheckPoint', str(current_accuracy) )
+
+                    self.cost_plot.data.append(epoch_loss)
+                    self.accuracy_plot.data.append(current_accuracy)
+
+                    self.cost_plot.save_sub_plot(self.accuracy_plot,
+                    checkpoint_save_path + "/charts/{} and {}.png".format(self.cost_plot.y_label, self.accuracy_plot.y_label))
