@@ -126,8 +126,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     training_data_array = []
     test_data_array = []
 
-    buffer = 1000
-    limit = 20000
+    buffer = 10000
+    limit = 10000
     test_set_limit = limit * 0.3
     currentcount = 0 
 
@@ -176,9 +176,11 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         gray_image = cv2.resize(gray_image, (image_width, image_height))
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
+
         #cropped width img[y:y+h, x:x+w]
-        cropped_pixels = (image_width - image_height) / 2
-        gray_image = gray_image[image_height, cropped_pixels: cropped_pixels + image_height]
+        cropped_pixels = int((image_width - image_height) / 2)
+
+        gray_image = gray_image[0:image_height, cropped_pixels: cropped_pixels + image_height]
         #mirror data
         gray_image_mirror = np.fliplr(gray_image)
         label_mirror = label
@@ -188,14 +190,18 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         elif label[2] == 1.0:
             label_mirror = np.array([0.0, 1.0, 0.0])
 
-        
+
+        #print(gray_image.shape)
+
         #gray_image = gray_image.reshape(image_height, image_width, 1)
 
         # pic = np.uint8(gray_image * 255.0)
         # plt.matshow(pic, cmap=plt.cm.gray)
         # plt.show()
 
-        
+        # pic = np.uint8(gray_image_mirror * 255.0)
+        # plt.matshow(pic, cmap=plt.cm.gray)
+        # plt.show()
 
         #previous_steering_state = current_steering_state
         if currentcount >= limit:
@@ -205,10 +211,13 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
             training_data_array.append([gray_image, label])
             training_data_array.append([gray_image_mirror, label_mirror])
 
+
+        currentcount += 1
+
         if currentcount >= limit + test_set_limit:
             break
 
-        currentcount += 1
+        
 
     np.save(path_training + '/training.npy' , training_data_array)
     np.save(path_training + '/training_validation.npy' , test_data_array)

@@ -101,7 +101,7 @@ class Train:
         self.output_size = output_size
         self.learning_rate = learning_rate
 
-        self.X = tf.placeholder(tf.float16, [None, self.image_height, self.image_width, 1])
+        self.X = tf.placeholder(tf.float32, [None, self.image_height, self.image_width, 1])
         self.Y = tf.placeholder(tf.float32, [None, self.output_size])
         self.model = Model(self.X, self.Y, self.learning_rate)
 
@@ -163,7 +163,6 @@ class Train:
                     #plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
                     # plt.show()
             #validation_x = np.array(validation_x)
-                
             ##test_z = test_z.reshape((-1, 1))
             step = sess.run(global_step)
 
@@ -231,7 +230,6 @@ class Train:
 
                     epoch_loss += loss_val
                     starting_batch_index += batch_size
-
                 
                 step += 1
                 sess.run(global_step.assign(step))
@@ -270,5 +268,4 @@ class Train:
                     self.cost_plot.data.append(epoch_loss)
                     self.accuracy_plot.data.append(current_accuracy)
 
-                    self.cost_plot.save_sub_plot(self.accuracy_plot,
-                    checkpoint_save_path + "/charts/{} and {}.png".format(self.cost_plot.y_label, self.accuracy_plot.y_label))
+                    self.cost_plot.save_sub_plot(self.accuracy_plot, training_file_path + "/{} and {}.png".format(self.cost_plot.y_label, self.accuracy_plot.y_label))
