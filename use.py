@@ -38,10 +38,13 @@ class Use:
         saver = tf.train.Saver()
 
         game_running = False
-        #config = tf.ConfigProto()
-    # config.gpu_options.per_process_gpu_memory_fraction = 0.5
+        cropped_pixels = int((self.image_width - self.image_height) / 2)
+        # config = tf.ConfigProto()
+        # config.gpu_options.per_process_gpu_memory_fraction = 0.5
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
 
-        with tf.Session() as sess:#config=config
+        with tf.Session(config=config) as sess:#config=config
             sess.run(tf.local_variables_initializer())
             sess.run(tf.global_variables_initializer())
             saver.restore(sess, checkpoint_save_path)
@@ -59,6 +62,8 @@ class Use:
                     gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
                     gray_image = cv2.resize(gray_image, (self.image_width, self.image_height), interpolation=cv2.INTER_CUBIC)
                     gray_image = np.float16(gray_image / 255.0)
+
+                    gray_image = gray_image[0:self.image_height, cropped_pixels: cropped_pixels + self.image_height]
                     gray_image = np.reshape(gray_image, (-1, self.image_height, self.image_width, 1)) 
                     #gray_image[gray_image == 0] = -1.0
 

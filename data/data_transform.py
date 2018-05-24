@@ -126,10 +126,11 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     training_data_array = []
     test_data_array = []
 
-    buffer = 10000
-    limit = 10000
+    buffer = 11000
+    limit = 20000
     test_set_limit = limit * 0.3
     currentcount = 0 
+    cropped_pixels = int((image_width - image_height) / 2)
 
 
     for filename in tqdm(listing):
@@ -178,7 +179,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         #cropped width img[y:y+h, x:x+w]
-        cropped_pixels = int((image_width - image_height) / 2)
+        
 
         gray_image = gray_image[0:image_height, cropped_pixels: cropped_pixels + image_height]
         #mirror data

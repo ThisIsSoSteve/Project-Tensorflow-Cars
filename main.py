@@ -10,31 +10,31 @@ from train import Train
 from use import Use
 #from data import create_hdf5_file
 
-use_mode = Mode.Train
+use_mode = Mode.Use
  
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
-checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.795365.ckpt-1200'
+checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.84135.ckpt-1910'
 #checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/80/project_tensorflow_car_model_0.800262.ckpt-1280'
 raw_data_save_path = 'F:/Project_Cars_Data/Raw'
 training_data_save_path = 'F:/Project_Cars_Data/Training'
 
-image_width = 72
-image_height = 72
+image_width = 18
+image_height = 18
 label_size = 3
 
 if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
     #train.train_model(100000, 4000, 0.01, training_data_save_path, checkpoint_save_path, '')#21500
-    training = Train(image_height, image_width, label_size, 0.001)
-    training.train_model_with_npy_file(1000, 10000, training_data_save_path, checkpoint_save_path, '')
+    training = Train(image_height, image_width, label_size, 0.0001)
+    training.train_model_with_npy_file(2000, 10000, training_data_save_path, checkpoint_save_path, '')
 
     #train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
 
-#if use_mode == Mode.Restore_and_Train:
+if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
-    #train.train_model(100000, 2000, 0.0001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
-    #train.train_model_with_npy_file(100000, 1300, 0.001, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
+    training = Train(image_height, image_width, label_size, 0.001)
+    training.train_model_with_npy_file(2000, 10000, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:
     using_model = Use(image_height, image_width, label_size)
@@ -46,7 +46,7 @@ if use_mode == Mode.Record:
     record.Start(capture_rate, raw_data_save_path)
 
 if use_mode == Mode.Create_Training_Data:
-    data_transform.get_steering_features_labels(raw_data_save_path,training_data_save_path, image_height, 128)
+    data_transform.get_steering_features_labels(raw_data_save_path,training_data_save_path, image_height, 32)
 
 #if use_mode == Mode.Create_Training_Data:
     #data_transform.raw_to_training_data(raw_data_save_path, training_data_save_path)

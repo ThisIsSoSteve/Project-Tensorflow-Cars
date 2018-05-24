@@ -150,6 +150,7 @@ class Train:
             sess.run(tf.global_variables_initializer())
             if checkpoint_save_path != '':
                 saver.restore(sess, checkpoint_save_path)
+                print('Restored Model')
 
             validation_x = []
             validation_y = []
