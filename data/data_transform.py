@@ -50,7 +50,6 @@ def mirror_data(image, label):
     #return np.array([image, choices])
     return np.array([image, label])
 
-
 def raw_to_array(raw_save_path, image_height, image_width):
     print('getting raw data')
 
@@ -123,19 +122,34 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     listing = glob.glob(raw_save_path + '/*.png')
     np.random.shuffle(listing)
 
-    training_data_array = []
-    test_data_array = []
+    training_data_final= []
+    training_data_left = []
+    training_data_right = []
+    training_data_no_turns = []
 
-    buffer = 11000
+    validation_data_final = []
+    validation_data_left = []
+    validation_data_right = []
+    validation_data_no_turns = []
+
+
+    buffer = 12000
     limit = 20000
     test_set_limit = limit * 0.3
     currentcount = 0 
     cropped_pixels = int((image_width - image_height) / 2)
 
+    left_turns = 0
+    right_turns = 0
+    no_turns = 0
+
+    start_adding_data_to_validation_set = False
+
 
     for filename in tqdm(listing):
 
-        
+        if currentcount >= limit:
+            start_adding_data_to_validation_set = True
 
         filename = filename.replace('\\','/')
         filename = filename.replace('-image.png','')
@@ -148,27 +162,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         #only do Watkins Glen International track data
         current_track = str(project_cars_state.mTrackLocation).replace("'","").replace("b","")
 
-        if(current_track != "Watkins Glen International"):
+        if(current_track != "Watkins Glen International"):#if not on the correct track goto next track
             continue
-      
-        
-        label = np.zeros([3])
-
-        current_steering_state = controller_state['thumb_lx']   
-
-        #print(current_steering_state) 
-       
-        if current_steering_state > 0:
-            label = np.array([0.0, 0.0, 1.0])#right
-            #print("right")
-
-        else:
-            label = np.array([0.0, 1.0, 0.0])#left
-            #print("left")
-
-        if current_steering_state < buffer and current_steering_state > -buffer:
-            label = np.array([1.0, 0.0, 0.0])#no input
-
 
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
 
@@ -179,18 +174,17 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         #cropped width img[y:y+h, x:x+w]
-        
-
         gray_image = gray_image[0:image_height, cropped_pixels: cropped_pixels + image_height]
-        #mirror data
-        gray_image_mirror = np.fliplr(gray_image)
-        label_mirror = label
 
-        if label[1] == 1.0:
-            label_mirror = np.array([0.0, 0.0, 1.0])
-        elif label[2] == 1.0:
-            label_mirror = np.array([0.0, 1.0, 0.0])
+        # #mirror data
+        # gray_image_mirror = np.fliplr(gray_image)
+        # label_mirror = label
 
+        # if label[1] == 1.0:
+        #     label_mirror = np.array([0.0, 0.0, 1.0])
+        # elif label[2] == 1.0:
+        #     label_mirror = np.array([0.0, 1.0, 0.0])
+        
 
         #print(gray_image.shape)
 
@@ -204,21 +198,87 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         # plt.matshow(pic, cmap=plt.cm.gray)
         # plt.show()
 
-        #previous_steering_state = current_steering_state
-        if currentcount >= limit:
-            test_data_array.append([gray_image, label])
-            test_data_array.append([gray_image_mirror, label_mirror])
-        else:
-            training_data_array.append([gray_image, label])
-            training_data_array.append([gray_image_mirror, label_mirror])
 
+        label = np.zeros([3])
+
+        current_steering_state = controller_state['thumb_lx']   
+
+        #print(current_steering_state) 
+       
+        if current_steering_state > 0:
+            label = np.array([0.0, 0.0, 1.0])#right
+            right_turns += 1
+            #print("right")
+            if start_adding_data_to_validation_set:
+                validation_data_right.append([gray_image, label])
+            else:
+                training_data_right.append([gray_image, label])
+
+        else:
+            label = np.array([0.0, 1.0, 0.0])#left
+            left_turns += 1
+            #print("left")
+            if start_adding_data_to_validation_set:
+                validation_data_left.append([gray_image, label])
+            else:
+                training_data_left.append([gray_image, label])
+
+        if current_steering_state < buffer and current_steering_state > -buffer:
+            label = np.array([1.0, 0.0, 0.0])#no input
+            no_turns += 1
+            if start_adding_data_to_validation_set:
+                validation_data_no_turns.append([gray_image, label])
+            else:
+                training_data_no_turns.append([gray_image, label])
+
+
+
+
+        #previous_steering_state = current_steering_state
+        
+
+            #test_data_array.append([gray_image, label])
+            #test_data_array.append([gray_image_mirror, label_mirror])
+        #else:
+            #training_data_array.append([gray_image, label])
+            #training_data_array.append([gray_image_mirror, label_mirror])
+
+       
 
         currentcount += 1
 
         if currentcount >= limit + test_set_limit:
             break
 
-        
+    training_counts = np.array([len(training_data_right), len(training_data_left), len(training_data_no_turns)])
+    min_training_counts = np.argmin(training_counts)
+    print(training_counts)
 
-    np.save(path_training + '/training.npy' , training_data_array)
-    np.save(path_training + '/training_validation.npy' , test_data_array)
+    index_limit = training_counts[min_training_counts]
+    print(index_limit)
+
+    for data in training_data_right[0:index_limit]:#better way?
+        training_data_final.append([data[0], data[1]])
+    for data in training_data_left[0:index_limit]:#better way?
+        training_data_final.append([data[0], data[1]])
+    for data in training_data_no_turns[0:index_limit]:#better way?
+        training_data_final.append([data[0], data[1]])
+
+    validation_counts = np.array([len(validation_data_right), len(validation_data_left), len(validation_data_no_turns)])
+    min_validation_counts = np.argmin(validation_counts)
+    print(validation_counts)
+
+    index_limit = validation_counts[min_validation_counts]
+    print(index_limit)
+
+    for data in validation_data_right[0:index_limit]:#better way?
+        validation_data_final.append([data[0], data[1]])
+    for data in validation_data_left[0:index_limit]:#better way?
+        validation_data_final.append([data[0], data[1]])
+    for data in validation_data_no_turns[0:index_limit]:#better way?
+        validation_data_final.append([data[0], data[1]])
+
+    print('left_turns: {} right_turns: {} no_turns: {}'.format(left_turns, right_turns, no_turns))
+    print('training_data_final_length: {} validation_data_final_length: {} '.format(len(training_data_final), len(validation_data_final)))
+    np.save(path_training + '/training.npy' , training_data_final)
+    np.save(path_training + '/training_validation.npy' , validation_data_final)

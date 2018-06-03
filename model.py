@@ -4,10 +4,12 @@ from lazy_property import lazy_property
 class Model:
 
 
-    def __init__(self, feature, label, learning_rate = 0.01):
+    def __init__(self, feature, label, learning_rate, conv_keep_prob, dense_keep_prob):
         self.feature = feature
         self.label = label
         self.learning_rate = learning_rate
+        self.conv_keep_prob = conv_keep_prob
+        self.dense_keep_prob = dense_keep_prob
         self.prediction
         self.optimize
         self.error
@@ -26,9 +28,10 @@ class Model:
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
     
+        conv1_drop_out = tf.nn.dropout(conv1, self.conv_keep_prob) 
 
         conv2 = tf.contrib.layers.convolution2d(
-            inputs=conv1,
+            inputs=conv1_drop_out,
             num_outputs = 36,
             stride=[2, 2],
             kernel_size=[5, 5],
@@ -37,9 +40,11 @@ class Model:
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
+        
+        conv2_drop_out = tf.nn.dropout(conv2, self.conv_keep_prob) 
 
         conv3 = tf.contrib.layers.convolution2d(
-            inputs=conv2,
+            inputs=conv2_drop_out,
             num_outputs = 48,
             stride=[2, 2],
             kernel_size=[5, 5],
@@ -49,8 +54,10 @@ class Model:
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
 
+        conv3_drop_out = tf.nn.dropout(conv3, self.conv_keep_prob) 
+
         conv4 = tf.contrib.layers.convolution2d(
-            inputs=conv3,
+            inputs=conv3_drop_out,
             num_outputs = 64,
             stride=[1, 1],
             kernel_size=[3, 3],
@@ -59,9 +66,11 @@ class Model:
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
+
+        conv4_drop_out = tf.nn.dropout(conv4, self.conv_keep_prob) 
 
         conv5 = tf.contrib.layers.convolution2d(
-            inputs=conv4,
+            inputs=conv4_drop_out,
             num_outputs = 64,
             stride=[1, 1],
             kernel_size=[3, 3],
@@ -71,8 +80,10 @@ class Model:
             weights_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
             biases_initializer=tf.constant_initializer(0.1))
 
+        conv5_drop_out = tf.nn.dropout(conv5, self.conv_keep_prob) 
 
-        conv5_flat = tf.contrib.layers.flatten(conv5)
+
+        conv5_flat = tf.contrib.layers.flatten(conv5_drop_out)
 
         fcl1 = tf.contrib.layers.fully_connected(
             inputs = conv5_flat, 
@@ -82,21 +93,27 @@ class Model:
             biases_initializer=tf.constant_initializer(0.1)
             )
 
+        fcl1_drop_out = tf.nn.dropout(fcl1, self.dense_keep_prob) 
+
         fcl2 = tf.contrib.layers.fully_connected(
-            inputs = fcl1, 
+            inputs = fcl1_drop_out, 
             num_outputs = 64, 
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.1)
             )
+        
+        fcl2_drop_out = tf.nn.dropout(fcl2, self.dense_keep_prob) 
 
         fcl3 = tf.contrib.layers.fully_connected(
-            inputs = fcl2, 
+            inputs = fcl2_drop_out, 
             num_outputs = 16, 
             activation_fn = tf.nn.relu,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.1)
             )
+
+        fcl3_drop_out = tf.nn.dropout(fcl3, self.dense_keep_prob) 
 
         output = tf.contrib.layers.fully_connected(
             inputs = fcl3, 

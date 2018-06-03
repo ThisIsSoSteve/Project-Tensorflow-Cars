@@ -22,7 +22,9 @@ class Use:
 
         self.X = tf.placeholder(tf.float32, [None, self.image_height, self.image_width, 1])
         self.Y = tf.placeholder(tf.float32, [None, self.output_size])
-        self.model = Model(self.X, self.Y)
+        self.conv_keep_rate = tf.placeholder(tf.float32)
+        self.dense_keep_rate = tf.placeholder(tf.float32)
+        self.model = Model(self.X, self.Y, 0.01, self.conv_keep_rate, self.dense_keep_rate)
 
     def use_model(self, checkpoint_save_path):
         controller = vc.virtual_xbox_controller()
@@ -70,7 +72,7 @@ class Use:
                     ##predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
                     ##predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.p_keep_hidden: 1.0, model.batch_size: 1})
 
-                    predicted_actions = sess.run(self.model.prediction, { self.X: gray_image })[0]
+                    predicted_actions = sess.run(self.model.prediction, { self.X: gray_image, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0 })[0]
 
                     #predicted_actions = sess.run(tf.nn.sigmoid(predicted_actions[0]))
                     predicted_action = np.argmax(predicted_actions)
