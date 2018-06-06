@@ -65,8 +65,8 @@ class Use:
                     gray_image = cv2.resize(gray_image, (self.image_width, self.image_height), interpolation=cv2.INTER_CUBIC)
                     gray_image = np.float16(gray_image / 255.0)
 
-                    gray_image = gray_image[0:self.image_height, cropped_pixels: cropped_pixels + self.image_height]
-                    gray_image = np.reshape(gray_image, (-1, self.image_height, self.image_width, 1)) 
+                    #gray_image = gray_image[0:self.image_height, cropped_pixels: cropped_pixels + self.image_height]
+                    #gray_image = np.reshape(gray_image, (-1, self.image_height, self.image_width, 1)) 
                     #gray_image[gray_image == 0] = -1.0
 
                     ##predicted_actions = sess.run(prediction, feed_dict={model.x:gray_image, model.z:gameSpeed, model.p_keep_hidden: 1.0})
@@ -88,7 +88,7 @@ class Use:
                         right_action = 1.0
 
                     if game.mSpeed < 50:
-                        throttle_action = 0.2
+                        throttle_action = 0.3
 
                     controller.control_car(throttle_action, 0.0, left_action, right_action)
                     #controller.control_car(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3])
@@ -100,7 +100,7 @@ class Use:
                     #plt.matshow(np.reshape(gray_image[0],(72,128)), cmap=plt.cm.gray)
                     #plt.show()
                     #break
-                    time.sleep(0.1)
+                    time.sleep(0.4)
                 elif game_running:
                     controller.control_car(0.0, 0.0, 0.0, 0.0)
                     print('Paused')

@@ -44,7 +44,8 @@ def Start(capture_rate, root_save_folder):
     controller_state = pyxinput.rController(1)
 
     while start_up_complete:
-
+        # print(project_cars_state.mTrackLocation)
+        # print(project_cars_state.mTrackVariation)
         if start_countdown and project_cars_state.mGameState == 2:
             countdown.begin_from(countdown_from)
             start_countdown = False
@@ -78,8 +79,8 @@ def Start(capture_rate, root_save_folder):
 
 
             pic = grabber1.grab()
-            gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
-            gray_image = cv2.resize(gray_image, (640,360))#32,18
+            #gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
+            gray_image = cv2.resize(pic, (640,360))#32,18
             #cv2.imshow("image", pic)
             #cv2.waitKey()
             

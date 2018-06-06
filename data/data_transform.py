@@ -6,6 +6,7 @@ import pickle
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from shutil import copy
 
 def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
     print('starting')
@@ -117,6 +118,30 @@ def get_is_car_on_track_label(project_cars_state):
     #print('[{}][{}]'.format(game.mTerrain[2],game.mTerrain[3]))
 
 
+def copy_specific_training_data_to_new_folder(source_folder_path, destination_folder_path, track_name, track_variation):
+    listing = glob.glob(source_folder_path + '/*.png')
+    for filename in tqdm(listing):
+
+        filename = filename.replace('\\','/')
+        filename = filename.replace('-image.png','')
+
+        with open(filename + '-data.pkl', 'rb') as input:
+            project_cars_state = pickle.load(input)
+            controller_state = pickle.load(input)
+
+        #only do Watkins Glen International track data
+        current_track = str(project_cars_state.mTrackLocation).replace("'","").replace("b","")
+        current_track_variation = str(project_cars_state.mTrackVariation).replace("'","").replace("b","")
+
+        if(current_track != track_name and current_track_variation != track_variation):#if not on the correct track goto next track. *variation = #Short Circuit or #Grand Prix
+            continue
+
+        copy(filename + '-data.pkl', destination_folder_path)
+        copy(filename + '-image.png', destination_folder_path)
+
+
+
+
 def get_steering_features_labels(raw_save_path, path_training, image_height, image_width):
 
     listing = glob.glob(raw_save_path + '/*.png')
@@ -133,8 +158,8 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     validation_data_no_turns = []
 
 
-    buffer = 12000
-    limit = 20000
+    buffer = 10000
+    limit = 30000
     test_set_limit = limit * 0.3
     currentcount = 0 
     cropped_pixels = int((image_width - image_height) / 2)
@@ -161,8 +186,9 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
 
         #only do Watkins Glen International track data
         current_track = str(project_cars_state.mTrackLocation).replace("'","").replace("b","")
+        current_track_variation = str(project_cars_state.mTrackVariation).replace("'","").replace("b","")
 
-        if(current_track != "Watkins Glen International"):#if not on the correct track goto next track
+        if(current_track != 'Watkins Glen International' and current_track_variation != 'Short Circuit'):#if not on the correct track goto next track. *variation = #Short Circuit or #Grand Prix
             continue
 
         gray_image = cv2.imread(filename + '-image.png', cv2.IMREAD_GRAYSCALE)
@@ -174,7 +200,7 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
 
         #cropped width img[y:y+h, x:x+w]
-        gray_image = gray_image[0:image_height, cropped_pixels: cropped_pixels + image_height]
+        #gray_image = gray_image[0:image_height, cropped_pixels: cropped_pixels + image_height]
 
         # #mirror data
         # gray_image_mirror = np.fliplr(gray_image)
@@ -282,3 +308,14 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     print('training_data_final_length: {} validation_data_final_length: {} '.format(len(training_data_final), len(validation_data_final)))
     np.save(path_training + '/training.npy' , training_data_final)
     np.save(path_training + '/training_validation.npy' , validation_data_final)
+
+
+
+
+#copy_specific_training_data_to_new_folder('F:/Project_Cars_Data/Raw', 'F:/Project_Cars_Data/Watkins Glen International - Short Circuit', 'Watkins Glen International', 'Short Circuit')
+
+# b'Watkins Glen International'
+# b'Short Circuit'
+
+# b'Watkins Glen International'
+# b'Grand Prix'

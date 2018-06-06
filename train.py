@@ -36,18 +36,6 @@ class Train:
 
         global_step = tf.Variable(0, trainable=False)
 
-        # #prediction = model.myModel(model.x, model.z, model.p_keep_hidden)
-        # prediction = model.myModel(model.x, model.p_keep_hidden)
-        # #cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=prediction, labels=model.y))
-        # #cost = tf.reduce_mean(tf.square(model.y - tf.nn.sigmoid(prediction)))
-
-        # cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=prediction, labels=model.y))
-        # optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step = global_step)#epsilon =1e-04
-
-        # correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(model.y, 1))
-
-        # accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-
         saver = tf.train.Saver(max_to_keep=10)
 
         best_accuracy = 0.20
@@ -127,10 +115,6 @@ class Train:
                 # plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
                 # plt.show()
 
-
-
-                
-
                 while starting_batch_index < number_of_training_records:
                     start = starting_batch_index
                     end = starting_batch_index + batch_size
@@ -148,7 +132,7 @@ class Train:
 
 
                     #_, loss_val = sess.run([optimizer, cost], feed_dict = {model.x: batch_x, model.y: batch_y, model.z: batch_z, model.p_keep_hidden: 0.8})
-                    _, loss_val = sess.run(self.model.optimize, {self.X: batch_x, self.Y: batch_y, self.conv_keep_rate: 0.5, self.dense_keep_rate: 0.7})
+                    _, loss_val = sess.run(self.model.optimize, {self.X: batch_x, self.Y: batch_y, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0})  #self.conv_keep_rate: 0.5, self.dense_keep_rate: 0.7
 
                     epoch_loss += loss_val
                     starting_batch_index += batch_size
@@ -159,10 +143,34 @@ class Train:
                 
 
                 if(step % 10 == 0):
-                    current_accuracy = 0
-                    current_accuracys = []
+                    current_training_accuracy = 0
+                    current_validation_accuracy = 0
+                    current_accuracies = []
                     starting_batch_index = 0
 
+
+                    #Training Accuracy
+                    while starting_batch_index < number_of_training_records:
+                        start = starting_batch_index
+                        end = starting_batch_index + batch_size
+
+                        batch_x = np.array(train_x[start:end])
+                        batch_y = np.array(train_y[start:end])
+
+                        batch_x = batch_x.reshape((-1, self.image_height, self.image_width, 1))
+
+                        current_accuracy = sess.run(self.model.error, { self.X: batch_x, self.Y: batch_y, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0})
+
+                        current_accuracies.append(current_accuracy)
+
+                        starting_batch_index += batch_size
+
+                    current_training_accuracy = np.average(current_accuracies)
+
+                    starting_batch_index = 0
+                    current_accuracies = []
+
+                    #Validation Accuracy
                     while starting_batch_index < number_of_validation_records:
 
                         start = starting_batch_index
@@ -175,19 +183,23 @@ class Train:
 
                         current_accuracy = sess.run(self.model.error, { self.X: validation_batch_x, self.Y: validation_batch_y, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0})
 
-                        #current_accuracys.append(accuracy.eval(feed_dict={model.x: validation_batch_x, model.y: validation_batch_y, model.p_keep_hidden: 1.0}))
-                        current_accuracys.append(current_accuracy)
+                        current_accuracies.append(current_accuracy)
 
                         starting_batch_index += batch_size
-                    current_accuracy = np.average(current_accuracys)
+
+                    current_validation_accuracy = np.average(current_accuracies)
+
                     
-                    print('Accuracy %g' % current_accuracy)
-                    if current_accuracy > best_accuracy or step % 100 == 0:
-                        best_accuracy = current_accuracy
-                        saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_accuracy) +'.ckpt', global_step=step)
-                        print('Saved CheckPoint', str(current_accuracy) )
+                    print('Training Accuracy %g' % current_training_accuracy)
+                    print('Validation Accuracy %g' % current_validation_accuracy)
+                    
+                    if current_validation_accuracy > best_accuracy or step % 100 == 0:
+                        best_accuracy = current_validation_accuracy
+                        saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_validation_accuracy) +'.ckpt', global_step=step)
+                        print('Saved CheckPoint', str(current_validation_accuracy) )
 
                     self.cost_plot.data.append(epoch_loss)
-                    self.accuracy_plot.data.append(current_accuracy)
+                    self.accuracy_plot.data.append(current_validation_accuracy)
 
                     self.cost_plot.save_sub_plot(self.accuracy_plot, training_file_path + "/{} and {}.png".format(self.cost_plot.y_label, self.accuracy_plot.y_label))
+                    current_accuracies = []
