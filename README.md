@@ -19,7 +19,7 @@ pip install git+git://github.com/matslindh/carseour
 pypcars2api used for "Project Cars 2" (based on Carseour)
 pip install git+git://github.com/marcelomanzo/pypcars2api.git
 
-Tensorflow 1.7 https://www.tensorflow.org/
+Tensorflow 1.10 https://www.tensorflow.org/
 
 PYXInput https://github.com/bayangan1991/PYXInput (virtual Xbox controller) 
 pip install PYXInput
