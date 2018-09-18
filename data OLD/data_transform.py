@@ -23,19 +23,20 @@ def convert_raw_to_file(raw_save_path, training_save_path, shuffle):
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
 
-    training_data_array = raw_to_array(raw_save_path, 128, 72)
+    #training_data_array = raw_to_array(raw_save_path, 128, 72)
+    training_data_array = create_none_image_features_data(raw_save_path)
 
     if shuffle:
         np.random.shuffle(training_data_array)
 
-    #Split validation set from training data
+    #Split test set from training data
     percent_of_test_data = int((len(training_data_array) / 100) * 20) #20%
-    validation_data_array = np.array(training_data_array[0:percent_of_test_data])
+    test_data_array = np.array(training_data_array[0:percent_of_test_data])
 
     training_data_array = np.array(training_data_array[percent_of_test_data:])
 
     np.save(path_training, training_data_array)
-    np.save(path_training_test, validation_data_array)
+    np.save(path_training_test, test_data_array)
 
     print('Complete')
 
@@ -77,7 +78,7 @@ def raw_to_array(raw_save_path, image_height, image_width):
         gray_image = cv2.resize(gray_image, (image_width, image_height), interpolation=cv2.INTER_CUBIC) #keep 16:9 ratio (width, height)
         gray_image = np.float16(gray_image / 255.0) #0-255 to 0.0-1.0
         gray_image = gray_image.reshape(image_height, image_width, 1)
-
+    
         #label = get_throttle_brakes_steering_label(controller_state)
         label = get_is_car_on_track_label(project_cars_state)
 
@@ -117,7 +118,6 @@ def get_is_car_on_track_label(project_cars_state):
     #print('[{}][{}]'.format(game.mTerrain[0],game.mTerrain[1]))
     #print('[{}][{}]'.format(game.mTerrain[2],game.mTerrain[3]))
 
-
 def copy_specific_training_data_to_new_folder(source_folder_path, destination_folder_path, track_name, track_variation):
     listing = glob.glob(source_folder_path + '/*.png')
     for filename in tqdm(listing):
@@ -139,15 +139,12 @@ def copy_specific_training_data_to_new_folder(source_folder_path, destination_fo
         copy(filename + '-data.pkl', destination_folder_path)
         copy(filename + '-image.png', destination_folder_path)
 
-
-
-
 def get_steering_features_labels(raw_save_path, path_training, image_height, image_width):
 
     listing = glob.glob(raw_save_path + '/*.png')
     np.random.shuffle(listing)
 
-    training_data_final= []
+    training_data_final = []
     training_data_left = []
     training_data_right = []
     training_data_no_turns = []
@@ -169,7 +166,6 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     no_turns = 0
 
     start_adding_data_to_validation_set = False
-
 
     for filename in tqdm(listing):
 
@@ -309,7 +305,42 @@ def get_steering_features_labels(raw_save_path, path_training, image_height, ima
     np.save(path_training + '/training.npy' , training_data_final)
     np.save(path_training + '/training_validation.npy' , validation_data_final)
 
+def create_none_image_features_data(raw_save_path):
+    print('starting create_none_image_features_data')
+    listing = glob.glob(raw_save_path + '/*.pkl')
+    training_data_array = []
 
+    for filename in tqdm(listing):
+
+        filename = filename.replace('\\','/')
+
+        project_cars_state = None
+        controller_state = None
+
+        with open(filename, 'rb') as input:
+            project_cars_state = pickle.load(input)
+            controller_state = pickle.load(input)
+
+        car = project_cars_state.mParticipantInfo[0]
+
+        if car.mCurrentLapDistance == 0.0:#remove all record that are not on a flying lap
+            continue
+
+        position = car.mWorldPosition
+        angle = project_cars_state.mOrientation
+        velocity = project_cars_state.mLocalVelocity
+
+        throttle = controller_state['right_trigger'] / 255 #0 - 255
+        #brakes = controller_state['left_trigger'] #0 - 255
+        #steering = controller_state['thumb_lx'] #-32768 - 32767
+
+        feature = np.array([position[0], position[1], position[2], angle[0], angle[1], angle[2], velocity[0], velocity[1], velocity[2]])
+        label = np.array([throttle])
+
+        training_data_array.append([feature, label])
+
+    print('total data records', len(training_data_array)) 
+    return training_data_array
 
 
 #copy_specific_training_data_to_new_folder('F:/Project_Cars_Data/Raw', 'F:/Project_Cars_Data/Watkins Glen International - Short Circuit', 'Watkins Glen International', 'Short Circuit')

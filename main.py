@@ -14,27 +14,27 @@ use_mode = Mode.Train
  
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
-checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.6107714.ckpt-1210'
+checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.595063.ckpt-600'
 #checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/backup/80/project_tensorflow_car_model_0.800262.ckpt-1280'
 raw_data_save_path = 'F:/Project_Cars_Data/Watkins Glen International - Short Circuit'
-training_data_save_path = 'F:/Project_Cars_Data/Training'
+training_data_save_path = 'F:/Project_Cars_Data/Training_none_image'
 
 image_width = 128
 image_height = 72
-label_size = 3
+label_size = 1
 
 if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
     #train.train_model(100000, 4000, 0.01, training_data_save_path, checkpoint_save_path, '')#21500
-    training = Train(image_height, image_width, label_size, 0.005)
-    training.train_model_with_npy_file(20000, 1000, training_data_save_path, checkpoint_save_path, '')
+    training = Train(image_height, image_width, label_size, 0.001)
+    training.train_model_with_npy_file(10000, 10000, training_data_save_path, checkpoint_save_path, '')
 
     #train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
 
 if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
-    training = Train(image_height, image_width, label_size, 0.0001)
-    training.train_model_with_npy_file(20000, 16384, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
+    training = Train(image_height, image_width, label_size, 0.01)
+    training.train_model_with_npy_file(20000, 3000, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:
     using_model = Use(image_height, image_width, label_size)
@@ -46,8 +46,8 @@ if use_mode == Mode.Record:
     record.Start(capture_rate, raw_data_save_path)
 
 if use_mode == Mode.Create_Training_Data:
-    data_transform.get_steering_features_labels(raw_data_save_path,training_data_save_path, image_height, image_width)
-
+    #data_transform.get_steering_features_labels(raw_data_save_path,training_data_save_path, image_height, image_width)
+    data_transform.convert_raw_to_file(raw_data_save_path, training_data_save_path, True)
 #if use_mode == Mode.Create_Training_Data:
     #data_transform.raw_to_training_data(raw_data_save_path, training_data_save_path)
     #data_transform.raw_to_HDF5(raw_data_save_path, training_data_save_path)

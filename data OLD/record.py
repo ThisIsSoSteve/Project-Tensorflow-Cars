@@ -15,7 +15,6 @@ import pickle
 
 def Start(capture_rate, root_save_folder):
     start_up_complete = False
-    #capture_rate = 0.1
 
     if capture_rate <= 0:
         raise ValueError('Capture rate has to higher than 0')

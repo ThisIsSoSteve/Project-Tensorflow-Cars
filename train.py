@@ -13,13 +13,14 @@ from plot import Plot
 class Train:
 
     def __init__(self, image_height, image_width, output_size, learning_rate = 0.01):
-                
+
         self.image_height = image_height
         self.image_width = image_width
         self.output_size = output_size
         self.learning_rate = learning_rate
 
-        self.X = tf.placeholder(tf.float32, [None, self.image_height, self.image_width, 1])
+        #self.X = tf.placeholder(tf.float32, [None, self.image_height, self.image_width, 1])
+        self.X = tf.placeholder(tf.float32, [None, 9])
         self.Y = tf.placeholder(tf.float32, [None, self.output_size])
         self.conv_keep_rate = tf.placeholder(tf.float32)
         self.dense_keep_rate = tf.placeholder(tf.float32)
@@ -43,6 +44,9 @@ class Train:
         training_data = np.load(training_file_path + '/training.npy')
         validation_data = np.load(training_file_path + '/training_validation.npy')
 
+
+
+
         number_of_training_records = len(training_data)
         number_of_validation_records = len(validation_data)
 
@@ -61,6 +65,19 @@ class Train:
                 saver.restore(sess, checkpoint_save_path)
                 print('Restored Model')
 
+
+            #Normalize Features
+            train_x = []
+
+            for data in training_data:#better way?
+                train_x.append(np.array(data[0]))
+
+            mean = np.mean(train_x, axis=0)
+            std = np.std(train_x, axis=0)
+
+            #train_x = (train_x - mean) / std
+
+
             validation_x = []
             validation_y = []
             #validation_z = []
@@ -74,6 +91,10 @@ class Train:
                     # plt.show()
             #validation_x = np.array(validation_x)
             ##test_z = test_z.reshape((-1, 1))
+
+            validation_x = (validation_x - mean) / std
+
+
             step = sess.run(global_step)
 
             while step < number_of_epochs:
@@ -90,7 +111,7 @@ class Train:
 
                     train_x.append(np.array(data[0]))
                     train_y.append(np.array(data[1]))
-                    #train_z.append(np.array(data[2])) 
+                    #train_z.append(np.array(data[2]))
 
                     #print(data[1])
                     #pic = np.uint8(data[0] * 255)
@@ -98,7 +119,9 @@ class Train:
                     #plt.matshow(pic, cmap=plt.cm.gray)
                     #plt.show()
 
-                
+                #terrible change please
+                train_x = (train_x - mean) / std
+
                 # print(train_y[5])
                 # #pic = train_x[0].reshape((-1, model.image_height, model.image_width, 1))
                 # pic = np.uint8(train_x[5] * 255)
@@ -124,7 +147,7 @@ class Train:
                     #batch_z = np.array(train_z[start:end])
                     #batch_z = np.reshape(batch_z ,(batch_size, 1))
 
-                    batch_x = batch_x.reshape((-1, self.image_height, self.image_width, 1))
+                    #batch_x = batch_x.reshape((-1, self.image_height, self.image_width, 1))
 
                     # pic = np.uint8(batch_x[0] * 255.0)
                     # plt.matshow(np.reshape(pic,(model.image_height, model.image_width)), cmap=plt.cm.gray)
@@ -136,11 +159,11 @@ class Train:
 
                     epoch_loss += loss_val
                     starting_batch_index += batch_size
-                
+
                 step += 1
                 sess.run(global_step.assign(step))
                 print('Global Step', step, 'Loss', epoch_loss)
-                
+
 
                 if(step % 10 == 0):
                     current_training_accuracy = 0
@@ -157,7 +180,7 @@ class Train:
                         batch_x = np.array(train_x[start:end])
                         batch_y = np.array(train_y[start:end])
 
-                        batch_x = batch_x.reshape((-1, self.image_height, self.image_width, 1))
+                        #batch_x = batch_x.reshape((-1, self.image_height, self.image_width, 1))
 
                         current_accuracy = sess.run(self.model.error, { self.X: batch_x, self.Y: batch_y, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0})
 
@@ -179,7 +202,7 @@ class Train:
                         validation_batch_x = np.array(validation_x[start:end])
                         validation_batch_y = np.array(validation_y[start:end])
 
-                        validation_batch_x = validation_batch_x.reshape((-1, self.image_height, self.image_width, 1))
+                        #validation_batch_x = validation_batch_x.reshape((-1, self.image_height, self.image_width, 1))
 
                         current_accuracy = sess.run(self.model.error, { self.X: validation_batch_x, self.Y: validation_batch_y, self.conv_keep_rate: 1.0, self.dense_keep_rate: 1.0})
 
@@ -189,10 +212,10 @@ class Train:
 
                     current_validation_accuracy = np.average(current_accuracies)
 
-                    
+
                     print('Training Accuracy %g' % current_training_accuracy)
                     print('Validation Accuracy %g' % current_validation_accuracy)
-                    
+
                     if current_validation_accuracy > best_accuracy or step % 100 == 0:
                         best_accuracy = current_validation_accuracy
                         saver.save(sess, checkpoint_file_path + '/project_tensorflow_car_model_' + str(current_validation_accuracy) +'.ckpt', global_step=step)
