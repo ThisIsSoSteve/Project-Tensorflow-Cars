@@ -48,16 +48,16 @@ class Read:
 
         Keyword arguments:
         file_path -- the full path to the file you want to read .pkl
-        
+
         """
 
         if file_path[-4] != '.pkl':
             raise ValueError('Can\'t open {} file, please select a .pkl file.'
                              .format(file_path[-4]))
 
-        with open(file_path, 'rb') as input:
-            project_cars_state = pickle.load(input)
-            controller_state = pickle.load(input)
+        with open(file_path, 'rb') as data:
+            project_cars_state = pickle.load(data)
+            controller_state = pickle.load(data)
 
         if self.display_debug_info:
             self.print_raw(project_cars_state, controller_state)

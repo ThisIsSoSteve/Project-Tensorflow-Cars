@@ -3,7 +3,7 @@
 Back again after a lot of learning
 Attempting to use Tensorflow to race a car in the game Project Cars. Very much in a work in progress.
 
-## What i'm using
+## What I'm using
 
 Windows 10 Pro 64bit
 
