@@ -2,7 +2,7 @@ import pickle
 import os
 import numpy as np
 
-
+#ToDo add get all data (training, validation, test)
 class Read:
     """
     Can read the raw or transformed data
