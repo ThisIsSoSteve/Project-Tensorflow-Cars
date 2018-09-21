@@ -66,6 +66,11 @@ class virtual_xbox_controller:
     
         print("Throttle:", throttle, "Brakes:", brakes, "Steering:", self.steering)
 
+    def control_car_throttle_only(self, throttle):
+        self.MyVirtual.set_value(self.control_throttle, throttle / 255.0)
+        print('Throttle: {}'.format(throttle))
+
+
 '''Set a value on the controller
     All controls will accept a value between -1.0 and 1.0
     Control List:

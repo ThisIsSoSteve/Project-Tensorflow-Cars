@@ -10,6 +10,7 @@ from train import Train
 from use import Use
 #from data import create_hdf5_file
 
+#TODO Rewrite!
 use_mode = Mode.Train
  
 

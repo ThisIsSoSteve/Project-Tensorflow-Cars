@@ -1,7 +1,7 @@
 import tensorflow as tf
 from lazy_property import lazy_property
 
-class Model:
+class Model: #TODO remove
 
 
     def __init__(self, feature, label, learning_rate, conv_keep_prob, dense_keep_prob):
