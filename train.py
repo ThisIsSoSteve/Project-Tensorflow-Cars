@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow import keras
 from data_control_no_images import read
+import matplotlib.pyplot as plt
 
 class Train:
 
@@ -22,9 +23,9 @@ class Train:
             keras.layers.Dense(1)
         ])
 
-        optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        #optimizer = tf.train.RMSPropOptimizer(lr=self.learning_rate)
 
-        model.compile(loss='mse', optimizer = optimizer, metric=['mae'])
+        model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=self.learning_rate), metrics=['mae'])
 
         return model
 
@@ -50,14 +51,38 @@ class Train:
         validation_features = (validation_features - mean) / std
         # test_features = (test_features - mean) / std
 
-        cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path, 
+        cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path + '/cp-{epoch:04d}.h5',
                                                     save_weights_only=False,
                                                     verbose=1, period=10)
 
         model = self.create()
 
-        model.fit(training_features, training_labels, epochs = self.number_of_epochs,
+        history = model.fit(training_features, training_labels, epochs = self.number_of_epochs,
                   callbacks = [cp_callback], validation_data = (validation_features, validation_labels), verbose=1, batch_size=128)
+
+        #TODO move to plot class
+        print(history.history.keys())
+        # summarize history for accuracy
+        plt.plot(history.history['mean_absolute_error'])
+        plt.plot(history.history['val_mean_absolute_error'])
+        plt.title('model mean_absolute_error')
+        plt.ylabel('mean_absolute_error')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        plt.show()
+        #plt.savefig(self.data_folder_path + '/mean_absolute_error.png', dpi=128)
+
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        plt.show()
+        #plt.savefig(self.data_folder_path + '/loss.png', dpi=128)
+        plt.close()
+
 
     def evaluate_test_data(self, checkpoint_file_path):
         read_data = read.Read()
@@ -70,7 +95,7 @@ class Train:
 
         model = keras.models.load_model(checkpoint_file_path)
 
-        loss,acc = model.evaluate(test_features, test_labels)
+        loss, acc = model.evaluate(test_features, test_labels)
         print("Restored model, accuracy: {:5.2f}%".format(100*acc))
         print("Restored model, loss: {}".format(loss))
 

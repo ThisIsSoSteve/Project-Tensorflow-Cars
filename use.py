@@ -5,10 +5,12 @@ import carseour as pcars
 import time
 from common import countdown
 import numpy as np
+from data_control_no_images import read
 
 class Use:
-    def __init__(self, model_checkpoint_file_path):
+    def __init__(self, model_checkpoint_file_path, training_data_save_path):
         self.model_checkpoint_file_path = model_checkpoint_file_path
+        self.training_data_save_path = training_data_save_path
 
     def predict(self):
 
@@ -24,6 +26,10 @@ class Use:
 
         is_game_playing = False
 
+        get_data = read.Read(True)
+
+        mean, std = get_data.load_mean_and_std(self.training_data_save_path)
+
         while True:
             if game.mGameState == 2:
                 is_game_playing = True
@@ -31,6 +37,8 @@ class Use:
                 feature = np.array([position[0], position[1], position[2],
                                     angle[0], angle[1], angle[2],
                                     velocity[0], velocity[1], velocity[2]])
+
+                feature = (feature - mean) / std
 
                 throttle_prediction = model.predict(feature)
 
@@ -40,6 +48,5 @@ class Use:
             elif is_game_playing:
                 controller.control_car_throttle_only(0.0)
                 print('Paused')
-                #stops pause print mulitple times
-                is_game_playing = False 
-
+                #stops pause print multiple times
+                is_game_playing = False

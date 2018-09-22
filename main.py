@@ -10,7 +10,7 @@ from train import Train
 from use import Use
 #from data import create_hdf5_file
 
-use_mode = Mode.Create_Training_Data
+use_mode = Mode.Train
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.595063.ckpt-600'
@@ -21,7 +21,7 @@ training_data_save_path = 'F:/Project_Cars_Data/Training_none_image'
 
 if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
-    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 1000, 128)
+    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 100, 128)
     training.model()
 
 #if use_mode == Mode.Restore_and_Train:
@@ -30,7 +30,7 @@ if use_mode == Mode.Train:
     #training.train_model_with_npy_file(20000, 3000, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:
-    using_model = Use(checkpoint_use_path)
+    using_model = Use(checkpoint_use_path, training_data_save_path)
     using_model.predict()
     #use.use_model(checkpoint_use_path)
 
