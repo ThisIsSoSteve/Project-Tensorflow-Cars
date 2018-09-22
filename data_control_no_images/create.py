@@ -45,8 +45,8 @@ class Create:
         self.path_training_labels = '/training_labels.npy'
         self.path_validation_features = '/validation_features.npy'
         self.path_validation_labels = '/validation_labels.npy'
-        self.path_test_features = '/validation_features.npy'
-        self.path_test_labels = '/validation_labels.npy'
+        self.path_test_features = '/test_features.npy'
+        self.path_test_labels = '/test_labels.npy'
 
         self.path_training = '/training.npy'
         self.path_validation = '/validation.npy'
@@ -111,6 +111,7 @@ class Create:
 
         Note this calls remove_existing_files() before saving the data
         """
+        
 
         self.remove_existing_files()
 
@@ -155,14 +156,18 @@ class Create:
                 data_test_features.append(np.array(record[0]))
                 data_test_labels.append(np.array(record[1]))
 
-            np.save(self.path_training_features, data_training_features)
-            np.save(self.path_training_labels, data_training_labels)
+            print('data {}'.format(len(data_training_features)))
 
-            np.save(self.path_validation_features, data_validation_features)
-            np.save(self.path_validation_labels, data_validation_labels)
+            np.save(self.save_data_folder_path + self.path_training_features, data_training_features)
+            np.save(self.save_data_folder_path + self.path_training_labels, data_training_labels)
 
-            np.save(self.path_test_features, data_test_features)
-            np.save(self.path_test_labels, data_test_labels)
+            np.save(self.save_data_folder_path + self.path_validation_features, data_validation_features)
+            np.save(self.save_data_folder_path + self.path_validation_labels, data_validation_labels)
+
+            np.save(self.save_data_folder_path + self.path_test_features, data_test_features)
+            np.save(self.save_data_folder_path + self.path_test_labels, data_test_labels)
+
+            self.save_mean_and_std()
         else:
             np.save(self.path_training, data_training)
             np.save(self.path_validation, data_validation)
@@ -198,3 +203,15 @@ class Create:
             path_training = self.save_data_folder_path + file
             if os.path.exists(path_training):
                 os.remove(path_training)
+
+    def save_mean_and_std(self):
+         #load training data
+        training_features = np.load(self.save_data_folder_path + self.path_training_features)
+        #training_labels = np.load(self.save_data_folder_path + self.path_training_features)
+
+        #normilize data
+        mean = np.mean(training_features, axis=0)
+        std = np.std(training_features, axis=0)
+
+        np.save(self.save_data_folder_path + '/mean.npy', mean)
+        np.save(self.save_data_folder_path + '/std.npy', std)

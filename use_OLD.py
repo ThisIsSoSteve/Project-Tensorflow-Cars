@@ -13,7 +13,7 @@ from model import Model
 
 #import matplotlib.pyplot as plt
 #import matplotlib.image as mpimg
-class Use:
+class Use_Old:
 
     def __init__(self, image_height, image_width, output_size):
         self.image_height = image_height

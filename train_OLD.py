@@ -10,7 +10,7 @@ import matplotlib.image as mpimg
 from model import Model
 from plot import Plot
 
-class Train:
+class Train_Old:
 
     def __init__(self, image_height, image_width, output_size, learning_rate = 0.01):
 

@@ -104,3 +104,14 @@ class Read:
 
         print('Throttle: {}, Brakes: {}, Steering, {}'.format(
             throttle, brakes, steering))
+
+
+    def load_mean_and_std(self, file_path):
+        mean = np.load(file_path + '/mean.npy')
+        std = np.load(file_path + '/std.npy')
+
+        if self.display_debug_info:
+            print('mean: {}'.format(mean))
+            print('std: {}'.format(std))
+
+        return mean, std

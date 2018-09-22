@@ -4,15 +4,13 @@ import os
 from modes import Mode
 import train
 
-from data import record
-from data import data_transform
+from record_raw_data import record
+from data_control_no_images import create
 from train import Train
 from use import Use
 #from data import create_hdf5_file
 
-#TODO Rewrite!
-use_mode = Mode.Train
- 
+use_mode = Mode.Create_Training_Data
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_model_0.595063.ckpt-600'
@@ -20,26 +18,20 @@ checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/project_tensorflow_car_m
 raw_data_save_path = 'F:/Project_Cars_Data/Watkins Glen International - Short Circuit'
 training_data_save_path = 'F:/Project_Cars_Data/Training_none_image'
 
-image_width = 128
-image_height = 72
-label_size = 1
 
 if use_mode == Mode.Train:
     #number_of_epochs, batch_size, learning_rate
-    #train.train_model(100000, 4000, 0.01, training_data_save_path, checkpoint_save_path, '')#21500
-    training = Train(image_height, image_width, label_size, 0.001)
-    training.train_model_with_npy_file(10000, 10000, training_data_save_path, checkpoint_save_path, '')
+    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 1000, 128)
+    training.model()
 
-    #train.train_model_with_npy_file(10000, 20000, 0.01, training_data_save_path, checkpoint_save_path, '')
-
-if use_mode == Mode.Restore_and_Train:
+#if use_mode == Mode.Restore_and_Train:
     #number, epochs, learning_rate
-    training = Train(image_height, image_width, label_size, 0.01)
-    training.train_model_with_npy_file(20000, 3000, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
+    #training = Train(image_height, image_width, label_size, 0.01)
+    #training.train_model_with_npy_file(20000, 3000, training_data_save_path, checkpoint_save_path, checkpoint_use_path)
 
 if use_mode == Mode.Use:
-    using_model = Use(image_height, image_width, label_size)
-    using_model.use_model(checkpoint_use_path)
+    using_model = Use(checkpoint_use_path)
+    using_model.predict()
     #use.use_model(checkpoint_use_path)
 
 if use_mode == Mode.Record:
@@ -48,10 +40,6 @@ if use_mode == Mode.Record:
 
 if use_mode == Mode.Create_Training_Data:
     #data_transform.get_steering_features_labels(raw_data_save_path,training_data_save_path, image_height, image_width)
-    data_transform.convert_raw_to_file(raw_data_save_path, training_data_save_path, True)
-#if use_mode == Mode.Create_Training_Data:
-    #data_transform.raw_to_training_data(raw_data_save_path, training_data_save_path)
-    #data_transform.raw_to_HDF5(raw_data_save_path, training_data_save_path)
     #data_transform.convert_raw_to_file(raw_data_save_path, training_data_save_path, True)
-    #create_hdf5_file.convert_raw_to_file(raw_data_save_path, training_data_save_path, 'training', False)
-    #create_hdf5_file.convert_raw_to_file(raw_data_save_path, training_data_save_path, 'on_track_training', True)
+    data = create.Create(raw_data_save_path, training_data_save_path, 100)
+    data.save_data(data.network_data())
