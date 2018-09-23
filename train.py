@@ -20,14 +20,18 @@ class Train:
 
     def create(self):#TODO change to proper model
         model = keras.models.Sequential([
-            keras.layers.Dense(512, activation=tf.nn.relu),
-            keras.layers.Dense(128, activation=tf.nn.relu),
+            keras.layers.Dense(1024, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
+            keras.layers.Dropout(0.2),
+            keras.layers.Dense(512, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
+            keras.layers.Dropout(0.2),
+            keras.layers.Dense(64, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
+            keras.layers.Dropout(0.2),
             keras.layers.Dense(1)
         ])
 
         #optimizer = tf.train.RMSPropOptimizer(lr=self.learning_rate)
 
-        model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=self.learning_rate), metrics=['mae'])
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
 
         return model
 
@@ -57,7 +61,7 @@ class Train:
         validation_features = (validation_features - mean) / std
 
         cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path + '/cp-{epoch:04d}-{val_mean_absolute_error:.2f}.h5',
-                                                      save_weights_only=False, verbose=1, period=10, monitor='val_mean_absolute_error')
+                                                      save_weights_only=False, verbose=1, period=100, monitor='val_mean_absolute_error')
 
         if restore_checkpoint_file_path != '':
             model = keras.models.load_model(restore_checkpoint_file_path)

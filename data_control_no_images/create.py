@@ -152,11 +152,11 @@ class Create:
                 data_validation_features.append(np.array(record[0]))
                 data_validation_labels.append(np.array(record[1]))
 
-            for record in data_training:  # is there a better way?
+            for record in data_test:  # is there a better way?
                 data_test_features.append(np.array(record[0]))
                 data_test_labels.append(np.array(record[1]))
 
-            print('data {}'.format(len(data_training_features)))
+            #print('data {}'.format(len(data_training_features)))
 
             np.save(self.save_data_folder_path + self.path_training_features, data_training_features)
             np.save(self.save_data_folder_path + self.path_training_labels, data_training_labels)

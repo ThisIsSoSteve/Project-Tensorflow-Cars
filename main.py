@@ -4,7 +4,7 @@ from data_control_no_images.create import Create
 from train import Train
 from use import Use
 
-use_mode = Mode.Use
+use_mode = Mode.Train
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
 checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/cp-0100-24.38.h5'
@@ -14,13 +14,13 @@ training_data_save_path = 'F:/Project_Cars_Data/Training_none_image'
 
 if use_mode == Mode.Train:
     #learning_rate, number_of_epochs, batch_size
-    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 100, 128)
+    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 1000, 128)
     training.model()
     #training.evaluate_test_data(checkpoint_use_path)
 
 if use_mode == Mode.Restore_and_Train:
     #learning_rate, number_of_epochs, batch_size
-    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 100, 128)
+    training = Train(checkpoint_save_path, training_data_save_path, 0.001, 1000, 128)
     training.model(checkpoint_use_path)
 
 if use_mode == Mode.Use:
@@ -32,6 +32,6 @@ if use_mode == Mode.Record:
     record.Start(capture_rate, raw_data_save_path)
 
 if use_mode == Mode.Create_Training_Data:
-    data = Create(raw_data_save_path, training_data_save_path, 100)
+    data = Create(raw_data_save_path, training_data_save_path, -1)
     data.save_data(data.network_data())
     
