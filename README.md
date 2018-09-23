@@ -3,7 +3,7 @@
 Back again after a lot of learning
 Attempting to use Tensorflow to race a car in the game Project Cars. Very much in a work in progress.
 
-##Update
+## Update
 I'm currently rewriting most of the code. I'm simplifying the problem and will be gradually increasing the complexity.
 
 Currently: input: position, angle, velocity of the car, output the acceleration value (0-255)
