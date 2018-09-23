@@ -58,15 +58,12 @@ class Use:
                 is_game_playing = True
 
                 feature = np.array([[position[0], position[1], position[2],
-                                    angle[0], angle[1], angle[2],
-                                    velocity[0], velocity[1], velocity[2]]])
+                                     angle[0], angle[1], angle[2],
+                                     velocity[0], velocity[1], velocity[2]]])
 
-                print('input: {}'.format(feature))
+                #print('input: {}'.format(feature))
 
                 feature = (feature - mean) / std
-
-
-                print('input shape: {}'.format(feature.shape))
 
                 throttle_prediction = model.predict(feature)
 
