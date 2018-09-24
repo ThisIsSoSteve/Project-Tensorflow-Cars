@@ -5,6 +5,7 @@ from datetime import datetime
 from tensorflow import keras
 import matplotlib.pyplot as plt
 from data_control_no_images.read import Read
+from plot import Plot
 
 class Train:
 
@@ -72,30 +73,34 @@ class Train:
                   callbacks=[cp_callback], validation_data=(validation_features, validation_labels), verbose=1, batch_size=128)
 
         #TODO move to plot class
+        new_plots = Plot(history, self.checkpoint_folder_path)
+        new_plots.save_error_plot()
+        new_plots.save_accuracy_plot()
+
         #print(history.history.keys())
         # summarize history for accuracy
-        plt.figure(1)
-        plt.plot(history.history['mean_absolute_error'])
-        plt.plot(history.history['val_mean_absolute_error'])
-        plt.title('model mean_absolute_error')
-        plt.ylabel('mean_absolute_error')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'validation'], loc='upper left')
-        plt.savefig(self.checkpoint_folder_path + '/mean_absolute_error.png', dpi=128)
-        plt.show()
+        # plt.figure(1)
+        # plt.plot(history.history['mean_absolute_error'])
+        # plt.plot(history.history['val_mean_absolute_error'])
+        # plt.title('model mean_absolute_error')
+        # plt.ylabel('mean_absolute_error')
+        # plt.xlabel('epoch')
+        # plt.legend(['train', 'validation'], loc='upper left')
+        # plt.savefig(self.checkpoint_folder_path + '/mean_absolute_error.png', dpi=128)
+        # plt.show()
 
-        # summarize history for loss
-        plt.figure(2)
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-        plt.title('model loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'validation'], loc='upper left')
-        #plt.show()
-        plt.savefig(self.checkpoint_folder_path + '/loss.png', dpi=128)
-        plt.show()
-        plt.close()
+        # # summarize history for loss
+        # plt.figure(2)
+        # plt.plot(history.history['loss'])
+        # plt.plot(history.history['val_loss'])
+        # plt.title('model loss')
+        # plt.ylabel('loss')
+        # plt.xlabel('epoch')
+        # plt.legend(['train', 'validation'], loc='upper left')
+        # #plt.show()
+        # plt.savefig(self.checkpoint_folder_path + '/loss.png', dpi=128)
+        # plt.show()
+        # plt.close()
 
 
     def evaluate_test_data(self, checkpoint_file_path):
