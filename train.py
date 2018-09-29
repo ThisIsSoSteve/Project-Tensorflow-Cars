@@ -21,18 +21,27 @@ class Train:
 
     def create(self):#TODO change to proper model
         model = keras.models.Sequential([
-            keras.layers.Dense(1024, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
-            keras.layers.Dropout(0.2),
-            keras.layers.Dense(512, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
-            keras.layers.Dropout(0.2),
-            keras.layers.Dense(64, activation=tf.nn.relu, activity_regularizer=keras.regularizers.l2(0.01)),
-            keras.layers.Dropout(0.2),
+           #kernel_regularizer=keras.regularizers.l2(0.01),
+            # keras.layers.Dense(128, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            # keras.layers.BatchNormalization(),
+            # keras.layers.Activation(tf.nn.relu),
+
+            keras.layers.Dense(32, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+
+            keras.layers.Dense(32, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+
             keras.layers.Dense(1)
         ])
 
         #optimizer = tf.train.RMSPropOptimizer(lr=self.learning_rate)
 
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
+        #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate, decay=0.0001, momentum=0.0), metrics=['mae'])
+        model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate), metrics=['mae'])
+        #model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
 
         return model
 
@@ -54,15 +63,24 @@ class Train:
         validation_features = np.load(self.data_folder_path + '/validation_features.npy')
         validation_labels = np.load(self.data_folder_path + '/validation_labels.npy')
 
+        if len(validation_features) == 0:
+             validation_features = training_features
+             validation_labels = training_labels
+
 
         read_data = Read()
         mean, std = read_data.load_mean_and_std(self.data_folder_path)
 
         training_features = (training_features - mean) / std
+        #training_labels = training_labels / 255
+
+        
         validation_features = (validation_features - mean) / std
+        #validation_labels = validation_labels / 255
+
 
         cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path + '/cp-{epoch:04d}-{val_mean_absolute_error:.2f}.h5',
-                                                      save_weights_only=False, verbose=1, period=100, monitor='val_mean_absolute_error')
+                                                      save_weights_only=False, verbose=1, period=1000, monitor='val_mean_absolute_error')
 
         if restore_checkpoint_file_path != '':
             model = keras.models.load_model(restore_checkpoint_file_path)
@@ -70,7 +88,7 @@ class Train:
             model = self.create()
 
         history = model.fit(training_features, training_labels, epochs=self.number_of_epochs,
-                  callbacks=[cp_callback], validation_data=(validation_features, validation_labels), verbose=1, batch_size=128)
+                  callbacks=[cp_callback], verbose=1, validation_data=(validation_features, validation_labels), batch_size=self.batch_size)
 
         #TODO move to plot class
         new_plots = Plot(history, self.checkpoint_folder_path)

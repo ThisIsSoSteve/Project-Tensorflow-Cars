@@ -66,14 +66,33 @@ class virtual_xbox_controller:
     
         print("Throttle:", throttle, "Brakes:", brakes, "Steering:", self.steering)
 
-    def control_car_throttle_only(self, throttle):
-        if throttle > 255.0:
-            throttle = 255.0
-        elif throttle < 0:
+    def control_car_throttle_only(self, action):
+        throttle = 0.0
+        brake = 0.0
+        
+        if action > 0:
+            brake = 0
+            throttle = action
+        else:
             throttle = 0
+            brake = action * -1
+
+        if throttle > 0.97:
+            throttle = 1.0
+
+        if brake > 0.97:
+            brake = 1.0
+
+        if throttle < 0.1:
+            throttle = 0
+
+        if brake < 0.1:
+            brake = 0
             
-        self.MyVirtual.set_value(self.control_throttle, throttle / 255.0)
-        print('Throttle: {}'.format(throttle))
+        self.MyVirtual.set_value(self.control_throttle, throttle)#/ 255.0
+        self.MyVirtual.set_value(self.control_brakes, brake)
+
+        print('Throttle: {}, Brakes: {}'.format(throttle, brake))
 
 
 '''Set a value on the controller

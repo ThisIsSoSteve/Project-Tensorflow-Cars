@@ -69,11 +69,14 @@ class Grabber(object):
         rect = GetWindowRect(hwnd)
 
         #for project cars settings #note in game resolution
+        #Make sure in display settings the "change the size of text, apps and other items" is 100% -Windows 10
+        #Note I'm playing the game in windowed mode at 1920 x 1080
         self.width = 1920
         self.height = 1080
 
-        self.x = rect.left + 8
-        self.y = rect.top + 31
+        #Offset, May need to adjust these settings
+        self.x = rect.left + 10
+        self.y = rect.top + 45
 
 
         print('w:{} h:{}'.format(self.width, self.height))

@@ -57,19 +57,21 @@ class Use:
             if game.mGameState == 2:
                 is_game_playing = True
 
+                # feature = np.array([[position[0], position[1], position[2],
+                #                      angle[0], angle[1], angle[2],
+                #                      velocity[0], velocity[1], velocity[2]]])
                 feature = np.array([[position[0], position[1], position[2],
-                                     angle[0], angle[1], angle[2],
-                                     velocity[0], velocity[1], velocity[2]]])
+                                      angle[0], angle[1], angle[2]]])
 
                 #print('input: {}'.format(feature))
 
                 feature = (feature - mean) / std
 
-                throttle_prediction = model.predict(feature)
+                throttle_prediction = model.predict(feature)[0]
 
-                print('prediction: {}'.format(throttle_prediction))
+                #print('prediction: {}'.format(throttle_prediction))
 
-                controller.control_car_throttle_only(throttle_prediction)
+                controller.control_car_throttle_only(throttle_prediction[0])
 
                 time.sleep(0.1)
             elif is_game_playing:

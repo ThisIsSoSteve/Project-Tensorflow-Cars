@@ -83,14 +83,17 @@ class Create:
             velocity = project_cars_state.mLocalVelocity
 
             throttle = controller_state['right_trigger']  # 0 - 255
-            # brakes = controller_state['left_trigger'] #0 - 255
+            brakes = controller_state['left_trigger'] #0 - 255
             # steering = controller_state['thumb_lx'] #-32768 - 32767
 
-            feature = np.array([position[0], position[1], position[2],
-                                angle[0], angle[1], angle[2],
-                                velocity[0], velocity[1], velocity[2]])
+            # feature = np.array([position[0], position[1], position[2],
+            #                     angle[0], angle[1], angle[2],
+            #                     velocity[0], velocity[1], velocity[2]])
 
-            label = np.array([throttle])
+            feature = np.array([position[0], position[1], position[2],
+                                angle[0], angle[1], angle[2]])
+
+            label = np.array([throttle, brakes])
 
             data.append([feature, label])
 
@@ -144,9 +147,36 @@ class Create:
             data_test_features = []
             data_test_labels = []
 
+            throttle_count = 0
+            no_throttle_count = 0
+
             for record in data_training:  # is there a better way?
-                data_training_features.append(np.array(record[0]))
-                data_training_labels.append(np.array(record[1]))
+                #print(record[1])
+                temp_record = record[1][0] / 255.0
+                temp_record = temp_record + ((record[1][1] / 255.0) * -1)
+                # if temp_record > 0.99:
+                #     throttle_count += 1
+                # else:
+                #     no_throttle_count += 1
+
+                # if no_throttle_count < throttle_count:
+                #     continue
+                #
+                
+                #print(temp_record)
+                if temp_record <= 0.0:
+                    data_training_features.append(np.array(record[0]))
+                    data_training_labels.append(np.array([temp_record]))
+                    no_throttle_count += 1
+
+            for record in data_training:  # is there a better way?
+                temp_record = record[1][0] / 255.0
+                temp_record = temp_record + ((record[1][1]  / 255.0) * -1)
+
+                if temp_record >= 0.0 and throttle_count < no_throttle_count:
+                    data_training_features.append(np.array(record[0]))
+                    data_training_labels.append(np.array(temp_record))
+                    throttle_count += 1
 
             for record in data_validation:  # is there a better way?
                 data_validation_features.append(np.array(record[0]))
@@ -157,6 +187,8 @@ class Create:
                 data_test_labels.append(np.array(record[1]))
 
             #print('data {}'.format(len(data_training_features)))
+            print('throttle on: {} vs off: {}'.format(throttle_count, no_throttle_count))
+
 
             np.save(self.save_data_folder_path + self.path_training_features, data_training_features)
             np.save(self.save_data_folder_path + self.path_training_labels, data_training_labels)
@@ -174,7 +206,7 @@ class Create:
             np.save(self.path_test, data_test)
 
         print('Completed: Training examples: {}, Validation examples: {}, Test examples: {}'.format(
-            len(data_training), len(data_validation), len(data_test)))
+            len(data_training_features), len(data_validation_features), len(data_test_features)))
 
     def remove_existing_files(self):
         """

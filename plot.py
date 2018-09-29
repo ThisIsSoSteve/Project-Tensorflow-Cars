@@ -14,6 +14,7 @@ class Plot:
         plt.ylabel('mean_absolute_error')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
+        plt.yscale('log')
         plt.savefig(self.save_folder_path + '/mean_absolute_error.png', dpi=128)
         if display_plot:
             plt.show()
@@ -27,6 +28,7 @@ class Plot:
         plt.ylabel('loss')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
+        plt.yscale('log')
         plt.savefig(self.save_folder_path + '/loss.png', dpi=128)
         if display_plot:
             plt.show()
