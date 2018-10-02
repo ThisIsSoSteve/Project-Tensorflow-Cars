@@ -26,22 +26,28 @@ class Train:
             # keras.layers.BatchNormalization(),
             # keras.layers.Activation(tf.nn.relu),
 
-            keras.layers.Dense(32, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
-            keras.layers.BatchNormalization(),
-            keras.layers.Activation(tf.nn.relu),
+            # keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            # keras.layers.BatchNormalization(),
+            # keras.layers.Activation(tf.nn.relu),
 
-            keras.layers.Dense(32, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
             keras.layers.BatchNormalization(),
             keras.layers.Activation(tf.nn.relu),
+            #keras.layers.Dropout(0.1),
+
+            keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+            #keras.layers.Dropout(0.1),
 
             keras.layers.Dense(1)
         ])
 
         #optimizer = tf.train.RMSPropOptimizer(lr=self.learning_rate)
 
-        #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate, decay=0.0001, momentum=0.0), metrics=['mae'])
-        model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate), metrics=['mae'])
-        #model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
+        #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate, decay=0.00001, momentum=0.0), metrics=['mae'])
+        #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate), metrics=['mae'])
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
 
         return model
 
@@ -73,14 +79,12 @@ class Train:
 
         training_features = (training_features - mean) / std
         #training_labels = training_labels / 255
-
         
         validation_features = (validation_features - mean) / std
         #validation_labels = validation_labels / 255
 
-
         cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path + '/cp-{epoch:04d}-{val_mean_absolute_error:.2f}.h5',
-                                                      save_weights_only=False, verbose=1, period=1000, monitor='val_mean_absolute_error')
+                                                      save_weights_only=False, verbose=1, period=10000, monitor='val_mean_absolute_error')
 
         if restore_checkpoint_file_path != '':
             model = keras.models.load_model(restore_checkpoint_file_path)
@@ -90,36 +94,9 @@ class Train:
         history = model.fit(training_features, training_labels, epochs=self.number_of_epochs,
                   callbacks=[cp_callback], verbose=1, validation_data=(validation_features, validation_labels), batch_size=self.batch_size)
 
-        #TODO move to plot class
         new_plots = Plot(history, self.checkpoint_folder_path)
         new_plots.save_error_plot()
         new_plots.save_accuracy_plot()
-
-        #print(history.history.keys())
-        # summarize history for accuracy
-        # plt.figure(1)
-        # plt.plot(history.history['mean_absolute_error'])
-        # plt.plot(history.history['val_mean_absolute_error'])
-        # plt.title('model mean_absolute_error')
-        # plt.ylabel('mean_absolute_error')
-        # plt.xlabel('epoch')
-        # plt.legend(['train', 'validation'], loc='upper left')
-        # plt.savefig(self.checkpoint_folder_path + '/mean_absolute_error.png', dpi=128)
-        # plt.show()
-
-        # # summarize history for loss
-        # plt.figure(2)
-        # plt.plot(history.history['loss'])
-        # plt.plot(history.history['val_loss'])
-        # plt.title('model loss')
-        # plt.ylabel('loss')
-        # plt.xlabel('epoch')
-        # plt.legend(['train', 'validation'], loc='upper left')
-        # #plt.show()
-        # plt.savefig(self.checkpoint_folder_path + '/loss.png', dpi=128)
-        # plt.show()
-        # plt.close()
-
 
     def evaluate_test_data(self, checkpoint_file_path):
         read_data = Read()

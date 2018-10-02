@@ -8,23 +8,45 @@ class virtual_xbox_controller:
          self.control_throttle = 'TriggerR'
          self.control_brakes = 'TriggerL'
          self.control_steering = 'AxisLx'
-         self.steering = 0.0
+         #self.steering = 0.0
 
-    def control_car(self, throttle, brakes, steering_left, steering_right):
+    def control_car(self, throttle_brake, steering_left_right):
 
-        if throttle > 0.95:
+        throttle = 0.0
+        brake = 0.0
+        
+        if throttle_brake > 0.0:
+            brake = 0.0
+            throttle = throttle_brake
+        else:
+            throttle = 0.0
+            brake = throttle_brake * -1
+
+        if throttle > 0.97:
             throttle = 1.0
-        if brakes > 0.6:
-            throttle  = 0
-        if brakes > 0.8:
-            brakes = 1.0
-            throttle  = 0
-        if steering_left > 0.9:
-            steering_left = 0.4
-            steering_right = 0
-        if steering_right > 0.9:
-            steering_right = 0.4
-            steering_left = 0
+
+        if brake > 0.97:
+            brake = 1.0
+
+        if throttle < 0.01:
+            throttle = 0.0
+
+        if brake < 0.1:
+            brake = 0.0
+
+        if steering_left_right > 0.97:
+            steering_left_right = 1.0
+        
+        if steering_left_right < -0.97:
+            steering_left_right = -1.0
+
+        # if steering_left_right > -0.03 and steering_left_right < 0.03:
+        #     steering_left_right = 0.0
+
+
+        self.MyVirtual.set_value(self.control_steering, steering_left_right)
+        self.MyVirtual.set_value(self.control_throttle, throttle)#/ 255.0
+        self.MyVirtual.set_value(self.control_brakes, brake)
 
         #if steering_left < 0.05:
         #    steering_left = 0
@@ -44,10 +66,10 @@ class virtual_xbox_controller:
         #if steering_right < 0.1:
         #    steering_right = 0
 
-        steering_left = -steering_left
-        self.steering = steering_left + steering_right
+        # steering_left = -steering_left
+        # self.steering = steering_left + steering_right
 
-        self.MyVirtual.set_value(self.control_steering, steering_left + steering_right)
+        # self.MyVirtual.set_value(self.control_steering, steering_left + steering_right)
 
         #self.steering += (-steering_left + steering_right)
 
@@ -55,16 +77,16 @@ class virtual_xbox_controller:
 
         #self.MyVirtual.set_value(self.control_steering, self.steering)
      
-        if throttle > brakes:
-            self.MyVirtual.set_value(self.control_throttle, throttle - brakes)
-            self.MyVirtual.set_value(self.control_brakes, 0)
-            brakes = 0
-        else:
-            self.MyVirtual.set_value(self.control_brakes, brakes)
-            self.MyVirtual.set_value(self.control_throttle, 0)
-            throttle = 0
+        # if throttle > brakes:
+        #     self.MyVirtual.set_value(self.control_throttle, throttle - brakes)
+        #     self.MyVirtual.set_value(self.control_brakes, 0)
+        #     brakes = 0
+        # else:
+        #     self.MyVirtual.set_value(self.control_brakes, brakes)
+        #     self.MyVirtual.set_value(self.control_throttle, 0)
+        #     throttle = 0
     
-        print("Throttle:", throttle, "Brakes:", brakes, "Steering:", self.steering)
+        print('Throttle: {}, Brakes: {}, Steering: {}'.format(throttle, brake, steering_left_right))
 
     def control_car_throttle_only(self, action):
         throttle = 0.0

@@ -64,6 +64,13 @@ class Create:
 
         records_added_count = 0
 
+        rolling_previous_features = np.array([
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0]
+        ])
+        #print(rolling_previous_features.shape)
+
         for filename in tqdm(listing):
 
             filename = filename.replace('\\', '/')
@@ -84,24 +91,43 @@ class Create:
 
             throttle = controller_state['right_trigger']  # 0 - 255
             brakes = controller_state['left_trigger'] #0 - 255
-            # steering = controller_state['thumb_lx'] #-32768 - 32767
+            steering = controller_state['thumb_lx'] #-32768 - 32767
 
             # feature = np.array([position[0], position[1], position[2],
             #                     angle[0], angle[1], angle[2],
             #                     velocity[0], velocity[1], velocity[2]])
 
-            feature = np.array([position[0], position[1], position[2],
-                                angle[0], angle[1], angle[2]])
+            # feature = np.array([position[0], position[1], position[2],
+            #                     angle[0], angle[1], angle[2]])
 
-            label = np.array([throttle, brakes])
+            feature = np.array([round(position[0], 2), round(position[1], 2), round(position[2], 2), round(angle[1], 2)])
+            #feature = np.array([position[0], position[1], position[2], angle[1]])
+            
+            rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
+            #rolling_previous_features.append([feature])
+            rolling_previous_features = rolling_previous_features[1:]
 
-            data.append([feature, label])
+            #print(rolling_previous_features)
+
+            #print(feature.shape())
+
+            # label = np.array([throttle, brakes, steering])
+            label = np.array([steering / 32767])
+
+            #data.append([feature, label])
+
+            new_features = np.array([rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
+                rolling_previous_features[1][0], rolling_previous_features[1][1], rolling_previous_features[1][2], rolling_previous_features[1][3],
+                rolling_previous_features[2][0], rolling_previous_features[2][1], rolling_previous_features[2][2], rolling_previous_features[2][3]])
+
+            data.append([new_features, label])
 
             records_added_count += 1
             if records_added_count == self.max_number_of_records:
                 break
 
         print('Total records found: {}'.format(len(data)))
+        
         return data
 
     def save_data(self, data):
@@ -150,10 +176,14 @@ class Create:
             throttle_count = 0
             no_throttle_count = 0
 
+            no_steering_count = 0
+
             for record in data_training:  # is there a better way?
                 #print(record[1])
-                temp_record = record[1][0] / 255.0
-                temp_record = temp_record + ((record[1][1] / 255.0) * -1)
+                #print(record[1] / 32768)
+                #temp_record = record[1][0] / 255.0
+                #temp_record = temp_record + ((record[1][1] / 255.0) * -1)
+                
                 # if temp_record > 0.99:
                 #     throttle_count += 1
                 # else:
@@ -164,19 +194,31 @@ class Create:
                 #
                 
                 #print(temp_record)
-                if temp_record <= 0.0:
-                    data_training_features.append(np.array(record[0]))
-                    data_training_labels.append(np.array([temp_record]))
-                    no_throttle_count += 1
 
-            for record in data_training:  # is there a better way?
-                temp_record = record[1][0] / 255.0
-                temp_record = temp_record + ((record[1][1]  / 255.0) * -1)
 
-                if temp_record >= 0.0 and throttle_count < no_throttle_count:
-                    data_training_features.append(np.array(record[0]))
-                    data_training_labels.append(np.array(temp_record))
-                    throttle_count += 1
+                #if record[1] <= -0.5:
+                data_training_features.append(np.array(record[0]))
+                data_training_labels.append(record[1])
+                no_throttle_count += 1
+
+            # for record in data_training:  # is there a better way?
+            #     # temp_record = record[1][0] / 255.0
+            #     # temp_record = temp_record + ((record[1][1]  / 255.0) * -1)
+
+            #     if record[1] >= 0.5 and throttle_count < no_throttle_count:
+            #         data_training_features.append(np.array(record[0]))
+            #         data_training_labels.append(np.array(record[1]))
+            #         throttle_count += 1
+
+            # for record in data_training:  # is there a better way?
+            #     # temp_record = record[1][0] / 255.0
+            #     # temp_record = temp_record + ((record[1][1]  / 255.0) * -1)
+
+            #     if record[1] > -0.02 and record[1] < 0.02 and no_steering_count < no_throttle_count:
+            #         data_training_features.append(np.array(record[0]))
+            #         data_training_labels.append(np.array(0.0))
+            #         no_steering_count += 1
+
 
             for record in data_validation:  # is there a better way?
                 data_validation_features.append(np.array(record[0]))
@@ -187,7 +229,7 @@ class Create:
                 data_test_labels.append(np.array(record[1]))
 
             #print('data {}'.format(len(data_training_features)))
-            print('throttle on: {} vs off: {}'.format(throttle_count, no_throttle_count))
+            print('steering right: {} left: {} no_sterring: {} '.format(throttle_count, no_throttle_count, no_steering_count))
 
 
             np.save(self.save_data_folder_path + self.path_training_features, data_training_features)

@@ -53,6 +53,12 @@ class Use:
 
         mean, std = get_data.load_mean_and_std(self.training_data_save_path)
 
+        rolling_previous_features = np.array([
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0]
+        ])
+
         while True:
             if game.mGameState == 2:
                 is_game_playing = True
@@ -60,22 +66,37 @@ class Use:
                 # feature = np.array([[position[0], position[1], position[2],
                 #                      angle[0], angle[1], angle[2],
                 #                      velocity[0], velocity[1], velocity[2]]])
-                feature = np.array([[position[0], position[1], position[2],
-                                      angle[0], angle[1], angle[2]]])
+                # feature = np.array([[position[0], position[1], position[2],
+                #                       angle[0], angle[1], angle[2]]])
 
-                #print('input: {}'.format(feature))
+                feature = np.array([round(position[0], 2), round(position[1], 2),
+                                    round(position[2], 2), round(angle[1], 2)])
+                #feature = np.array([position[0], position[1], position[2], angle[1]])
 
-                feature = (feature - mean) / std
+                rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
+                rolling_previous_features = rolling_previous_features[1:]
 
-                throttle_prediction = model.predict(feature)[0]
+                # print('input: pos: {0:.2f}, {1:.2f}, {2:.2f}'.format(position[0], position[1], position[2]))
+                # print('input: angle: {0:.2f}, {1:.2f}, {2:.2f}'.format(angle[0], angle[1], angle[2]))
 
-                #print('prediction: {}'.format(throttle_prediction))
 
-                controller.control_car_throttle_only(throttle_prediction[0])
+                new_features = np.array([[rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
+                rolling_previous_features[1][0], rolling_previous_features[1][1], rolling_previous_features[1][2], rolling_previous_features[1][3],
+                rolling_previous_features[2][0], rolling_previous_features[2][1], rolling_previous_features[2][2], rolling_previous_features[2][3]]])
+
+                #feature = (feature - mean) / std
+
+                new_features = (new_features - mean) / std
+
+                prediction = model.predict(new_features)[0]
+
+                print('prediction: {}'.format(prediction))
+
+                controller.control_car(0.0, prediction)
 
                 time.sleep(0.1)
             elif is_game_playing:
-                controller.control_car_throttle_only(0.0)
+                controller.control_car(0.0, 0.0)
                 print('Paused')
                 #stops multiple 'Paused' prints
                 is_game_playing = False
