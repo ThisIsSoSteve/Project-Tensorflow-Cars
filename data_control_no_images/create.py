@@ -3,7 +3,7 @@ import pickle
 import glob
 import numpy as np
 from tqdm import tqdm
-
+import random
 
 class Create:
     """
@@ -64,12 +64,9 @@ class Create:
 
         records_added_count = 0
 
-        rolling_previous_features = np.array([
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0]
-        ])
-        #print(rolling_previous_features.shape)
+        if self.shuffle:
+            np.random.shuffle(listing)
+
 
         for filename in tqdm(listing):
 
@@ -86,8 +83,10 @@ class Create:
                 continue
 
             position = car.mWorldPosition
-            angle = project_cars_state.mOrientation
-            velocity = project_cars_state.mLocalVelocity
+            #angle = project_cars_state.mOrientation
+            #velocity = project_cars_state.mLocalVelocity
+            speed = project_cars_state.mSpeed
+
 
             throttle = controller_state['right_trigger']  # 0 - 255
             brakes = controller_state['left_trigger'] #0 - 255
@@ -99,28 +98,42 @@ class Create:
 
             # feature = np.array([position[0], position[1], position[2],
             #                     angle[0], angle[1], angle[2]])
+            #position 2 is up and down
 
-            feature = np.array([round(position[0], 2), round(position[1], 2), round(position[2], 2), round(angle[1], 2)])
+            feature = np.array([round(position[0], 3), round(position[2], 3)])# round(angle[1], 1)]
             #feature = np.array([position[0], position[1], position[2], angle[1]])
             
-            rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
+            #rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
             #rolling_previous_features.append([feature])
-            rolling_previous_features = rolling_previous_features[1:]
+            #rolling_previous_features = rolling_previous_features[1:]
+
+            # if rolling_previous_features[0][0] == 0.0 and rolling_previous_features[0][3] == 0.0:
+            #     continue
 
             #print(rolling_previous_features)
 
             #print(feature.shape())
 
             # label = np.array([throttle, brakes, steering])
-            label = np.array([steering / 32767])
+            #print(project_cars_state.mSteering)
+            # if project_cars_state.mSteering == 0.0:
+            #     #print(steering)
+            #     if random.randint(0,2) == 0:
+            #         continue
 
-            #data.append([feature, label])
+            speed = throttle / 255.0
+            speed = speed + ((brakes / 255.0) * -1)
 
-            new_features = np.array([rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
-                rolling_previous_features[1][0], rolling_previous_features[1][1], rolling_previous_features[1][2], rolling_previous_features[1][3],
-                rolling_previous_features[2][0], rolling_previous_features[2][1], rolling_previous_features[2][2], rolling_previous_features[2][3]])
+            label = np.array([speed, steering / 32767])
+            #label = np.array([speed])
+            #label = np.array([steering / 32768])
+            data.append([feature, label])
 
-            data.append([new_features, label])
+            # new_features = np.array([rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
+            #     rolling_previous_features[1][0], rolling_previous_features[1][1], rolling_previous_features[1][2], rolling_previous_features[1][3],
+            #     rolling_previous_features[2][0], rolling_previous_features[2][1], rolling_previous_features[2][2], rolling_previous_features[2][3]])
+
+            #data.append([new_features, label])
 
             records_added_count += 1
             if records_added_count == self.max_number_of_records:
@@ -144,8 +157,7 @@ class Create:
 
         self.remove_existing_files()
 
-        if self.shuffle:
-            np.random.shuffle(data)
+       
 
         total_number_of_records = len(data)
 
@@ -178,28 +190,48 @@ class Create:
 
             no_steering_count = 0
 
+            
+            #np.random.shuffle(data_training)
+
             for record in data_training:  # is there a better way?
                 #print(record[1])
                 #print(record[1] / 32768)
-                #temp_record = record[1][0] / 255.0
+                
+
+                
                 #temp_record = temp_record + ((record[1][1] / 255.0) * -1)
                 
-                # if temp_record > 0.99:
-                #     throttle_count += 1
-                # else:
-                #     no_throttle_count += 1
-
+                balance_throttle = False
+                if balance_throttle:
+                    temp_record = record[1][0]
+                    if temp_record > 0.0:
+                        if no_throttle_count > throttle_count:
+                            data_training_features.append(np.array(record[0]))
+                            data_training_labels.append(record[1])
+                            throttle_count += 1
+                            print(temp_record)
+                    else:
+                        data_training_features.append(np.array(record[0]))
+                        data_training_labels.append(record[1])
+                        no_throttle_count += 1
+                        print(temp_record)
+                else:
+                    data_training_features.append(np.array(record[0]))
+                    data_training_labels.append(record[1])
+                    #print(record[1])
                 # if no_throttle_count < throttle_count:
                 #     continue
-                #
                 
-                #print(temp_record)
+                
+                
 
 
                 #if record[1] <= -0.5:
-                data_training_features.append(np.array(record[0]))
-                data_training_labels.append(record[1])
-                no_throttle_count += 1
+                
+                
+
+
+                
 
             # for record in data_training:  # is there a better way?
             #     # temp_record = record[1][0] / 255.0
@@ -229,7 +261,7 @@ class Create:
                 data_test_labels.append(np.array(record[1]))
 
             #print('data {}'.format(len(data_training_features)))
-            print('steering right: {} left: {} no_sterring: {} '.format(throttle_count, no_throttle_count, no_steering_count))
+            print('throttle : {} brake: {} '.format(throttle_count, no_throttle_count))
 
 
             np.save(self.save_data_folder_path + self.path_training_features, data_training_features)

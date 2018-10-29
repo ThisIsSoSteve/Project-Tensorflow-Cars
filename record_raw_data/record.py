@@ -75,8 +75,6 @@ def Start(capture_rate, root_save_folder):
                         'thumb_rx': read.thumb_rx, 
                         'thumb_ry': read.thumb_ry}
 
-
-
             pic = grabber1.grab()
             #gray_image = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
             gray_image = cv2.resize(pic, (640,360))#32,18

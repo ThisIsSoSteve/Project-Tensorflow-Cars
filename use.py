@@ -1,6 +1,3 @@
-import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #force cpu use gpu cause the predict to crash
 
 import time
 import numpy as np
@@ -38,6 +35,7 @@ class Use:
     def predict(self):
 
         model = keras.models.load_model(self.model_checkpoint_file_path)
+
         controller = vc.virtual_xbox_controller()
 
         countdown.begin_from(3)
@@ -45,19 +43,14 @@ class Use:
         game = pcars.live() #game state
         position = game.mParticipantInfo[0].mWorldPosition
         angle = game.mOrientation
-        velocity = game.mLocalVelocity
+
+        #velocity = game.mLocalVelocity
 
         is_game_playing = False
 
         get_data = Read(True)
 
         mean, std = get_data.load_mean_and_std(self.training_data_save_path)
-
-        rolling_previous_features = np.array([
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0]
-        ])
 
         while True:
             if game.mGameState == 2:
@@ -68,33 +61,26 @@ class Use:
                 #                      velocity[0], velocity[1], velocity[2]]])
                 # feature = np.array([[position[0], position[1], position[2],
                 #                       angle[0], angle[1], angle[2]]])
-
-                feature = np.array([round(position[0], 2), round(position[1], 2),
-                                    round(position[2], 2), round(angle[1], 2)])
+                #round(position[1], 2)
+                #feature = np.array([[round(position[0], 3), round(position[2], 3), round(angle[1], 3)]])
+                feature = np.array([[position[0], position[2]]])#, angle[1]
                 #feature = np.array([position[0], position[1], position[2], angle[1]])
 
-                rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
-                rolling_previous_features = rolling_previous_features[1:]
-
-                # print('input: pos: {0:.2f}, {1:.2f}, {2:.2f}'.format(position[0], position[1], position[2]))
+                #print('input: pos: {0:.2f}, {1:.2f}, {2:.2f}'.format(position[0], position[1], position[2]))
                 # print('input: angle: {0:.2f}, {1:.2f}, {2:.2f}'.format(angle[0], angle[1], angle[2]))
 
+                feature = (feature - mean) / std
 
-                new_features = np.array([[rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
-                rolling_previous_features[1][0], rolling_previous_features[1][1], rolling_previous_features[1][2], rolling_previous_features[1][3],
-                rolling_previous_features[2][0], rolling_previous_features[2][1], rolling_previous_features[2][2], rolling_previous_features[2][3]]])
+                #new_features = (new_features - mean) / std
+                
 
-                #feature = (feature - mean) / std
+                prediction = model.predict(feature)[0]
 
-                new_features = (new_features - mean) / std
+                #print('prediction: {}'.format(prediction))
 
-                prediction = model.predict(new_features)[0]
+                controller.control_car(prediction[0], prediction[1])
 
-                print('prediction: {}'.format(prediction))
-
-                controller.control_car(0.0, prediction)
-
-                time.sleep(0.1)
+                time.sleep(0.05)
             elif is_game_playing:
                 controller.control_car(0.0, 0.0)
                 print('Paused')

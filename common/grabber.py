@@ -75,8 +75,8 @@ class Grabber(object):
         self.height = 1080
 
         #Offset, May need to adjust these settings
-        self.x = rect.left + 10
-        self.y = rect.top + 45
+        self.x = rect.left + 8 #+ 10
+        self.y = rect.top + 31 #+ 45
 
 
         print('w:{} h:{}'.format(self.width, self.height))

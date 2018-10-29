@@ -26,28 +26,49 @@ class Train:
             # keras.layers.BatchNormalization(),
             # keras.layers.Activation(tf.nn.relu),
 
-            # keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            
+            # keras.layers.Dense(64, use_bias=False),
             # keras.layers.BatchNormalization(),
             # keras.layers.Activation(tf.nn.relu),
 
-            keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+
+            # keras.layers.Dense(64, use_bias=False),
+            # keras.layers.BatchNormalization(),
+            # keras.layers.Activation(tf.nn.relu),
+
+            
+
+            keras.layers.Dense(128, use_bias=False),
             keras.layers.BatchNormalization(),
             keras.layers.Activation(tf.nn.relu),
-            #keras.layers.Dropout(0.1),
 
-            keras.layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.01), use_bias=False),
+            keras.layers.Dense(128, use_bias=False),
             keras.layers.BatchNormalization(),
             keras.layers.Activation(tf.nn.relu),
-            #keras.layers.Dropout(0.1),
 
-            keras.layers.Dense(1)
+            keras.layers.Dense(128, use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+
+            keras.layers.Dense(128, use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+
+            keras.layers.Dense(128, use_bias=False),
+            keras.layers.BatchNormalization(),
+            keras.layers.Activation(tf.nn.relu),
+            #keras.layers.Dropout(0.01),
+           
+
+            keras.layers.Dense(2)
         ])
+        #kernel_regularizer=keras.regularizers.l2(0.001)
 
         #optimizer = tf.train.RMSPropOptimizer(lr=self.learning_rate)
 
         #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate, decay=0.00001, momentum=0.0), metrics=['mae'])
         #model.compile(loss='mse', optimizer=keras.optimizers.SGD(lr=self.learning_rate), metrics=['mae'])
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=self.learning_rate), metrics=['mae'])
+        model.compile(loss=keras.losses.logcosh, optimizer=keras.optimizers.Adamax(lr=self.learning_rate), metrics=['mae'])
 
         return model
 
@@ -84,7 +105,7 @@ class Train:
         #validation_labels = validation_labels / 255
 
         cp_callback = keras.callbacks.ModelCheckpoint(self.checkpoint_folder_path + '/cp-{epoch:04d}-{val_mean_absolute_error:.2f}.h5',
-                                                      save_weights_only=False, verbose=1, period=10000, monitor='val_mean_absolute_error')
+                                                      save_weights_only=False, verbose=1, period=1000, monitor='val_mean_absolute_error')
 
         if restore_checkpoint_file_path != '':
             model = keras.models.load_model(restore_checkpoint_file_path)
