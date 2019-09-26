@@ -28,17 +28,24 @@ class Read:
         returns array of records.
 
         """
-
-        if file_path[-4] != '.npy':
+        if file_path[-4:] != '.npy':
             raise ValueError('Can\'t open {} file, please select a .npy file.'
-                             .format(file_path[-4]))
+                             .format(file_path[-4:]))
 
         records = []
         if os.path.exists(file_path):
             records = np.load(file_path)
-            return np.random.shuffle(records)[:number_of_random_sample]
+            np.random.shuffle(records)
+            
+        return records[:number_of_random_sample]
 
-        return records
+    def print_records(self, network_records, round_down = 2):
+        for data in network_records:
+            formatted_data = ""
+            for data_point in data:
+                formatted_data = formatted_data +  str (round(data_point, round_down)) +  ", "
+
+            print(formatted_data)
 
     def get_raw(self, file_path):
         """
@@ -105,7 +112,6 @@ class Read:
         print('Throttle: {}, Brakes: {}, Steering, {}'.format(
             throttle, brakes, steering))
 
-
     def load_mean_and_std(self, file_path):
         mean = np.load(file_path + '/mean.npy')
         std = np.load(file_path + '/std.npy')
@@ -115,3 +121,10 @@ class Read:
             print('std: {}'.format(std))
 
         return mean, std
+
+
+
+
+readData = Read()
+data = readData.get('F:/Project_Cars_Data/Full_Speed_Training_none_image/steering val left right/training_features.npy', 100)
+readData.print_records(data)

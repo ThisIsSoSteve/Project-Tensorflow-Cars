@@ -17,17 +17,17 @@ Windows 10 Pro 64bit
 
 Visual Studio Code https://code.visualstudio.com/
 
-Python 3.6.5 64bit
+Python 3.7.4 64bit
 
 Project Cars (game) https://www.projectcarsgame.com/
 
-Carseour used for "Project Cars" (not used any more)
+Carseour used for "Project Cars"
 pip install git+git://github.com/matslindh/carseour
 
 pypcars2api used for "Project Cars 2" (based on Carseour)
 pip install git+git://github.com/marcelomanzo/pypcars2api.git
 
-Tensorflow 1.10 https://www.tensorflow.org/
+Tensorflow 2.0.0-rc2 https://www.tensorflow.org/
 
 PYXInput https://github.com/bayangan1991/PYXInput (virtual Xbox controller) 
 pip install PYXInput

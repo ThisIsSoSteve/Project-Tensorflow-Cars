@@ -23,24 +23,24 @@ class virtual_xbox_controller:
             
             brake = throttle_brake * -1
 
-        if throttle > 0.91:
-            throttle = 1.0
+        # if throttle > 0.91:
+        #     throttle = 1.0
 
-        if brake > 0.90:
-            brake = 1.0
+        # if brake > 0.90:
+        #     brake = 1.0
 
-        if throttle < 0.01:
-            throttle = 0.0
+        # if throttle < 0.01:
+        #     throttle = 0.0
 
-        if brake < 0.01:
-            brake = 0.0
+        # if brake < 0.01:
+        #     brake = 0.0
 
-        if steering_left_right > 0.95:
-            steering_left_right = 1.0
+        # if steering_left_right > 0.95:
+        #     steering_left_right = 1.0
 
         
-        if steering_left_right < -0.95:
-            steering_left_right = -1.0
+        # if steering_left_right < -0.95:
+        #     steering_left_right = -1.0
 
 
         # if steering_left_right > -0.03 and steering_left_right < 0.03:

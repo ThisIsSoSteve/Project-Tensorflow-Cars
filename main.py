@@ -5,16 +5,16 @@ from data_control_no_images.create import Create
 from train import Train
 from use import Use
 
-use_mode = Mode.Use
+use_mode = Mode.Train
 
 if use_mode == Mode.Use:#DON'T CHANGE THIS!
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1' #force cpu use gpu cause the predict to crash
 
 checkpoint_save_path = 'F:/Project_Cars_Data/Checkpoints'
-checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/2018-10-28_16-52-00-026796/cp-10000-0.10.h5'
-raw_data_save_path = 'F:/Project_Cars_Data/left-center-right/Watkins Glen International - Short Circuit'
-training_data_save_path = 'F:/Project_Cars_Data/Full_Speed_Training_none_image'
+checkpoint_use_path = 'F:/Project_Cars_Data/Checkpoints/2018-11-28_21-10-31-346859/cp-100000-0.31.h5'
+raw_data_save_path = 'F:/Project_Cars_Data/1lap-fullspeed/Watkins Glen International - Short Circuit'
+training_data_save_path = 'F:/Project_Cars_Data/Full_Speed_Training_none_image/20fps'
 
 
 #raw_validation_data_save_path = 'F:/Project_Cars_Data/Stay_Left/Watkins Glen International - Short Circuit'
@@ -22,7 +22,7 @@ training_data_save_path = 'F:/Project_Cars_Data/Full_Speed_Training_none_image'
 
 if use_mode == Mode.Train:
     #learning_rate, number_of_epochs, batch_size
-    training = Train(checkpoint_save_path, training_data_save_path, 0.00001, 20000, 5000)
+    training = Train(checkpoint_save_path, training_data_save_path, 0.00001, 100000, 5000)
     training.model()
     #training.evaluate_test_data(checkpoint_use_path)
 

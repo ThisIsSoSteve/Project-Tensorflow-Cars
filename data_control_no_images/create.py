@@ -67,6 +67,8 @@ class Create:
         if self.shuffle:
             np.random.shuffle(listing)
 
+        prev_steering_feature = 0
+        prev_throttle_feature = 0
 
         for filename in tqdm(listing):
 
@@ -79,18 +81,18 @@ class Create:
             car = project_cars_state.mParticipantInfo[0]
 
             # remove all record that are not on a flying lap
-            if car.mCurrentLapDistance == 0.0:
-                continue
+            
 
             position = car.mWorldPosition
             #angle = project_cars_state.mOrientation
             #velocity = project_cars_state.mLocalVelocity
-            speed = project_cars_state.mSpeed
+            #speed = project_cars_state.mSpeed
 
 
-            throttle = controller_state['right_trigger']  # 0 - 255
-            brakes = controller_state['left_trigger'] #0 - 255
-            steering = controller_state['thumb_lx'] #-32768 - 32767
+            throttle = controller_state['right_trigger'] / 255.0 # 0 - 255
+            brakes = controller_state['left_trigger'] / 255.0#0 - 255
+            steering = controller_state['thumb_lx'] /32767#-32768 - 32767
+
 
             # feature = np.array([position[0], position[1], position[2],
             #                     angle[0], angle[1], angle[2],
@@ -100,7 +102,7 @@ class Create:
             #                     angle[0], angle[1], angle[2]])
             #position 2 is up and down
 
-            feature = np.array([round(position[0], 3), round(position[2], 3)])# round(angle[1], 1)]
+            # round(angle[1], 1)]
             #feature = np.array([position[0], position[1], position[2], angle[1]])
             
             #rolling_previous_features = np.append(rolling_previous_features, [feature], axis=0)
@@ -120,13 +122,29 @@ class Create:
             #     #print(steering)
             #     if random.randint(0,2) == 0:
             #         continue
+            # if throttle > 0.0 and brakes > 0.0:#not many (4)
+            #     print('throttle {}, brakes {}'.format(throttle, brakes))
 
-            speed = throttle / 255.0
-            speed = speed + ((brakes / 255.0) * -1)
+            # speed = throttle / 255.0
+            # speed = speed + ((brakes / 255.0) * -1)
 
-            label = np.array([speed, steering / 32767])
+            # label = np.array([speed, steering / 32767.0])
+
+            feature = np.array([round(position[0], 2), round(position[2], 2), prev_steering_feature, prev_throttle_feature])
+
+            throttle_label = throttle
+            throttle_label = throttle_label + ((brakes) * -1)
+
+            label = np.array([throttle_label, steering])
             #label = np.array([speed])
             #label = np.array([steering / 32768])
+
+            prev_steering_feature = steering
+            prev_throttle_feature = throttle_label
+
+            if car.mCurrentLapDistance == 0.0:
+                continue
+
             data.append([feature, label])
 
             # new_features = np.array([rolling_previous_features[0][0], rolling_previous_features[0][1], rolling_previous_features[0][2], rolling_previous_features[0][3],
@@ -140,6 +158,10 @@ class Create:
                 break
 
         print('Total records found: {}'.format(len(data)))
+
+
+        for data_record in data:
+            print(data_record)
         
         return data
 
